@@ -24,20 +24,23 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
   </script>
-<meta name="description" content="在这记一下hexo的基本用法，不然以后时间长了都忘了">
+<meta name="description" content="由于毕业设计里面要用到LSTM，但是之前没搞懂怎么用，输入输出的格式，所以在这记一下。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="hexo基本用法">
-<meta property="og:url" content="http://example.com/2020/12/14/hexo%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/index.html">
+<meta property="og:title" content="对pytorch里LSTM的理解">
+<meta property="og:url" content="http://example.com/2021/04/04/%E5%AF%B9pytorch%E9%87%8CLSTM%E7%9A%84%E7%90%86%E8%A7%A3/index.html">
 <meta property="og:site_name" content="老约翰中医">
-<meta property="og:description" content="在这记一下hexo的基本用法，不然以后时间长了都忘了">
+<meta property="og:description" content="由于毕业设计里面要用到LSTM，但是之前没搞懂怎么用，输入输出的格式，所以在这记一下。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-12-14T09:43:39.000Z">
-<meta property="article:modified_time" content="2020-12-15T12:37:32.360Z">
+<meta property="og:image" content="https://www.jianguoyun.com/c/tblv2/8WdYgMP4iHC8so3PVOQzOKfvrsU7HRtLOMRa1r1gnHcz9O1Xvt4XZ09_ZmRy50zV2lNw5pNC/vHIaXJmx8-VfUV-6VlSgCw/l">
+<meta property="og:image" content="https://www.jianguoyun.com/c/tblv2/63kdCWxDhJT9O0uPs2F8Pcvat9v3kG1UiO0H4kSUoMEhHMOwzVvtSdB8IJj8gnxbP_sQ13HA/0N18pWVd-1s4nB5rFLVYtQ/l">
+<meta property="article:published_time" content="2021-04-04T09:38:56.000Z">
+<meta property="article:modified_time" content="2021-04-05T03:16:51.760Z">
 <meta property="article:author" content="Roadshop">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.jianguoyun.com/c/tblv2/8WdYgMP4iHC8so3PVOQzOKfvrsU7HRtLOMRa1r1gnHcz9O1Xvt4XZ09_ZmRy50zV2lNw5pNC/vHIaXJmx8-VfUV-6VlSgCw/l">
 
 
-<link rel="canonical" href="http://example.com/2020/12/14/hexo%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/">
+<link rel="canonical" href="http://example.com/2021/04/04/%E5%AF%B9pytorch%E9%87%8CLSTM%E7%9A%84%E7%90%86%E8%A7%A3/">
 
 
 <script class="page-configurations">
@@ -49,7 +52,7 @@
     lang   : 'zh-CN'
   };
 </script>
-<title>hexo基本用法 | 老约翰中医</title>
+<title>对pytorch里LSTM的理解 | 老约翰中医</title>
   
 
 
@@ -225,7 +228,7 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/12/14/hexo%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/04/04/%E5%AF%B9pytorch%E9%87%8CLSTM%E7%9A%84%E7%90%86%E8%A7%A3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -238,7 +241,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          hexo基本用法
+          对pytorch里LSTM的理解
         </h1>
 
         <div class="post-meta-container">
@@ -249,15 +252,24 @@
       </span>
       <span class="post-meta-item-text">发表于</span>
 
-      <time title="创建时间：2020-12-14 17:43:39" itemprop="dateCreated datePublished" datetime="2020-12-14T17:43:39+08:00">2020-12-14</time>
+      <time title="创建时间：2021-04-04 17:38:56" itemprop="dateCreated datePublished" datetime="2021-04-04T17:38:56+08:00">2021-04-04</time>
     </span>
       <span class="post-meta-item">
         <span class="post-meta-item-icon">
           <i class="far fa-calendar-check"></i>
         </span>
         <span class="post-meta-item-text">更新于</span>
-        <time title="修改时间：2020-12-15 20:37:32" itemprop="dateModified" datetime="2020-12-15T20:37:32+08:00">2020-12-15</time>
+        <time title="修改时间：2021-04-05 11:16:51" itemprop="dateModified" datetime="2021-04-05T11:16:51+08:00">2021-04-05</time>
       </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">深度学习</span></a>
+        </span>
+    </span>
 
   
 </div>
@@ -269,18 +281,67 @@
     
     
     <div class="post-body" itemprop="articleBody">
-        <p>在这记一下hexo的基本用法，不然以后时间长了都忘了</p>
+        <p>由于毕业设计里面要用到LSTM，但是之前没搞懂怎么用，输入输出的格式，所以在这记一下。</p>
 <a id="more"></a>
-<p>生成新的文章：<code>hexo new post name</code>，name就是文章的名字，然后就会在source\_posts里面生成对应的markdown文件，编辑就行了。  </p>
-<p>编辑好了以后，<code>hexo g</code>是来生成的。  </p>
-<p>可以在本地预览，用<code>hexo s</code>，localhost:4000查看。  </p>
-<p>最后发到github的时候，<code>hexo d</code>。  </p>
-<p>这就是最基本的几个。  </p>
-<p>如果发现本地预览的和github上的不一样，就</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure>
+<p>先看一下pytorch的<a target="_blank" rel="noopener" href="https://pytorch.org/docs/1.4.0/nn.html">官方网址</a>，我用的是1.4版本。其中对于nn.LSTM主要用到的输入参数有以下几个：  </p>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>input_size</td>
+<td>The number of expected features in the input <em>x</em></td>
+</tr>
+<tr>
+<td>hidden_size</td>
+<td>The number of features in the hidden state <em>h</em></td>
+</tr>
+<tr>
+<td>num_layers</td>
+<td>Number of recurrent layers</td>
+</tr>
+</tbody></table>
+<p>&nbsp;</p>
+<p>直接上两张图：</p>
+<div align=center><img src="https://www.jianguoyun.com/c/tblv2/8WdYgMP4iHC8so3PVOQzOKfvrsU7HRtLOMRa1r1gnHcz9O1Xvt4XZ09_ZmRy50zV2lNw5pNC/vHIaXJmx8-VfUV-6VlSgCw/l" width="80%" height="80%"></div>
+<div align=center>图1</div>
+&nbsp;
 
-<p>标签和分类不一样，那我平时就使用分类吧，不同的归到不同的类别下面。生成新的文章上面有个categories，在那写就行了。</p>
+<div align=center><img src="https://www.jianguoyun.com/c/tblv2/63kdCWxDhJT9O0uPs2F8Pcvat9v3kG1UiO0H4kSUoMEhHMOwzVvtSdB8IJj8gnxbP_sQ13HA/0N18pWVd-1s4nB5rFLVYtQ/l" width="50%" height="50%"></div>
+<div align=center>图2</div>
 
+<ul>
+<li>模型参数里面的<code>input_size</code>，官方文档里面写得也很清楚了，是<em>x</em>的特征的个数。图2是普通的神经网络的结构，在RNN/LSTM中，也是类似的。<code>input_size</code>对应于图2的一个<em>x</em>的<code>input</code>，在图2中是4。</li>
+<li><code>hidden_size</code>对应于图2里面<code>hidden</code>的神经元的个数，在图2中是3。</li>
+<li><code>num_layers</code>是隐层的层数，对应于图1中的2层。</li>
+</ul>
+<p>整个图2的结构对应于图1中为黄色方框里面的内容。</p>
+<p>再来看<code>input</code>的内容：包含了<code>input</code>和<code>(h0, c0)</code>。  </p>
+<ul>
+<li><p><code>input</code>的shape为<code>(seq_len, batch, input_size)</code>。<code>seq_len</code>是给模型的序列的长度，对应于图1里面橙色的箭头，也就是4。<code>batch</code>就是batch。<code>input_size</code>是每个<em>x</em>的feature的长度，也就是图2里面的4。</p>
+</li>
+<li><p><code>h0</code>和<code>c0</code>的shape是一样的，因为公式里面每个cell都要用到上一个的<code>h</code>和<code>c</code>，当cell不是每一行的第一个时，<code>h</code>和<code>c</code>由前面的提供。当cell为第一个时，它们作为输入提供，在图1中有标注。当为单向的LSTM时，shape为<code>(num_layers, batch, hidden_size)</code>。每一层的第一个都需要，所以有一个维度为<code>num_layers</code>，而每一个cell(图1中的绿框或蓝框)，都对应于图2，都有<code>hidden_size</code>个隐藏的神经元。  </p>
+</li>
+</ul>
+<p>再来看<code>output</code>。<code>output</code>包含了<code>output</code>，<code>(h_n, c_n)</code>。</p>
+<ul>
+<li><p>当LSTM为单向时，<code>output</code>的shape为<code>(seq_len, batch, hidden_size)</code>。对应于图1里面4个蓝框向上的黑色的输出。有4个<code>seq_len</code>，每个cell里面都有<code>hidden_size</code>个节点。</p>
+</li>
+<li><p>同样的，<code>hn</code>和<code>cn</code>的shape是一样的，当LSTM为单向时，为<code>(num_layers, batch, hidden_size)</code>。文档里面也说了，这两个是tensor containing the hidden state for t = seq_len。即图1中最后一列青色框内的的绿框和蓝框输出的<code>h</code>和<code>c</code>。有<code>num_layers</code>个，每个都有<code>hidden_size</code>个。</p>
+</li>
+</ul>
+<p><code>c</code>是用于记忆的，<code>h</code>是每个真正输出的，所以下面来做验证：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">import torch</span><br><span class="line">from torch import nn</span><br><span class="line"></span><br><span class="line">#seq_len为5，batch为3，2层隐层，input的feature为10，隐层的feature为20</span><br><span class="line">rnn &#x3D; nn.LSTM(10, 20, 2)</span><br><span class="line">input &#x3D; torch.randn(5, 3, 10)</span><br><span class="line">h0 &#x3D; torch.randn(2, 3, 20)</span><br><span class="line">c0 &#x3D; torch.randn(2, 3, 20)</span><br><span class="line">output, (hn, cn) &#x3D; rnn(input, (h0, c0))</span><br></pre></td></tr></table></figure>
+<p>此时的输出的shape：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">output.shape</span><br><span class="line">torch.Size([5, 3, 20])</span><br><span class="line"></span><br><span class="line">hn.shape</span><br><span class="line">torch.Size([2, 3, 20])</span><br></pre></td></tr></table></figure>
+<p>输出为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#第二层，也就是最后一层，第0个batch的所有feature</span><br><span class="line">hn[1, 0, :]</span><br><span class="line">tensor([-0.0782, -0.0454, -0.0965,  0.1213, -0.0044,  0.0327, -0.1001, -0.0142,  0.0388,  0.1085, -0.1335,  0.0021,  0.0531, -0.0665,  0.0056,  0.0089, 0.1538, -0.1175,  0.0617, -0.1061], grad_fn&#x3D;&lt;SliceBackward&gt;)</span><br><span class="line"></span><br><span class="line">#output从左往右数最后一个，第0个batch的所有feature</span><br><span class="line">output[4, 0, :]</span><br><span class="line">tensor([-0.0782, -0.0454, -0.0965,  0.1213, -0.0044,  0.0327, -0.1001, -0.0142, 0.0388,  0.1085, -0.1335,  0.0021,  0.0531, -0.0665,  0.0056,  0.0089, 0.1538, -0.1175,  0.0617, -0.1061], grad_fn&#x3D;&lt;SliceBackward&gt;)</span><br></pre></td></tr></table></figure>
+
+<p>再来一下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hn[1, 2, :] &#x3D;&#x3D; output[4, 2, :]</span><br><span class="line">tensor([True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True])</span><br></pre></td></tr></table></figure>
     </div>
 
     
@@ -293,14 +354,11 @@
 
           <div class="post-nav">
             <div class="post-nav-item">
-                <a href="/2020/11/30/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/" rel="prev" title="第一篇文章">
-                  <i class="fa fa-chevron-left"></i> 第一篇文章
+                <a href="/2021/03/03/%E5%AF%92%E5%81%87%E7%9A%84%E4%B8%80%E6%AC%A1%E5%A4%B1%E7%9C%A0/" rel="prev" title="寒假的一次失眠">
+                  <i class="fa fa-chevron-left"></i> 寒假的一次失眠
                 </a>
             </div>
             <div class="post-nav-item">
-                <a href="/2021/03/03/%E5%AF%92%E5%81%87%E7%9A%84%E4%B8%80%E6%AC%A1%E5%A4%B1%E7%9C%A0/" rel="next" title="寒假的一次失眠">
-                  寒假的一次失眠 <i class="fa fa-chevron-right"></i>
-                </a>
             </div>
           </div>
     </footer>
