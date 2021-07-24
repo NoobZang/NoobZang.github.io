@@ -24,20 +24,16 @@
     var NexT = window.NexT || {};
     var CONFIG = {"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
   </script>
-<meta name="description" content="在这记一下hexo的基本用法，不然以后时间长了都忘了">
-<meta property="og:type" content="article">
-<meta property="og:title" content="hexo基本用法">
-<meta property="og:url" content="http://example.com/2020/12/14/hexo%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="老约翰中医">
+<meta property="og:url" content="http://example.com/archives/2021/07/index.html">
 <meta property="og:site_name" content="老约翰中医">
-<meta property="og:description" content="在这记一下hexo的基本用法，不然以后时间长了都忘了">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-12-14T09:43:39.000Z">
-<meta property="article:modified_time" content="2021-04-05T03:45:23.723Z">
 <meta property="article:author" content="Roadshop">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="http://example.com/2020/12/14/hexo%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/">
+<link rel="canonical" href="http://example.com/archives/2021/07/">
 
 
 <script class="page-configurations">
@@ -45,11 +41,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : true,
+    isPost : false,
     lang   : 'zh-CN'
   };
 </script>
-<title>hexo基本用法 | 老约翰中医</title>
+<title>归档 | 老约翰中医</title>
   
 
 
@@ -214,97 +210,49 @@
 </noscript>
 
 
-    <div class="main-inner post posts-expand">
+    <div class="main-inner archive posts-collapse">
 
 
   
-
-
-<div class="post-block">
   
   
+  <div class="post-block">
+    <div class="post-content">
+      <div class="collection-title">
+        <span class="collection-header">嗯..! 目前共计 6 篇日志。 继续努力。</span>
+      </div>
 
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/12/14/hexo%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Roadshop">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="老约翰中医">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          hexo基本用法
-        </h1>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2020-12-14 17:43:39" itemprop="dateCreated datePublished" datetime="2020-12-14T17:43:39+08:00">2020-12-14</time>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-        <p>在这记一下hexo的基本用法，不然以后时间长了都忘了</p>
-<a id="more"></a>
-<p>生成新的文章：<code>hexo new post name</code>，name就是文章的名字，然后就会在source\_posts里面生成对应的markdown文件，编辑就行了。  </p>
-<p>编辑好了以后，<code>hexo g</code>是来生成的。  </p>
-<p>可以在本地预览，用<code>hexo s</code>，localhost:4000查看。  </p>
-<p>最后发到github的时候，<code>hexo d</code>。  </p>
-<p>这就是最基本的几个。  </p>
-<p>如果发现本地预览的和github上的不一样，就</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo d -g</span><br></pre></td></tr></table></figure>
-
-<p>标签和分类不一样，那我平时就使用分类吧，不同的归到不同的类别下面。生成新的文章上面有个categories，在那写就行了。</p>
-<p>如果插入了图片，我一般是用坚果云作为图床，上传上去以后，预览，复制图片地址，插入到md里面去就行了。但是要注意，hexo里面需要在前面，也就是categories — 后面加上<code>&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;/&gt;</code>一句，才能在hexo中显示。</p>
-
+      
+    <div class="collection-year">
+      <span class="collection-header">2021</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+      <div class="post-meta-container">
+        <time itemprop="dateCreated"
+              datetime="2021-07-21T20:44:06+08:00"
+              content="2021-07-21">
+          07-21
+        </time>
+      </div>
 
-    <footer class="post-footer">
+      <div class="post-title">
+          <a class="post-title-link" href="/2021/07/21/6-828%E7%AC%94%E8%AE%B0-Lab-2-Memory-Management/" itemprop="url">
+            <span itemprop="name">6.828笔记 Lab 2: Memory Management</span>
+          </a>
+      </div>
 
-        
-
-          <div class="post-nav">
-            <div class="post-nav-item">
-                <a href="/2020/11/30/%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/" rel="prev" title="第一篇文章">
-                  <i class="fa fa-chevron-left"></i> 第一篇文章
-                </a>
-            </div>
-            <div class="post-nav-item">
-                <a href="/2021/03/03/%E5%AF%92%E5%81%87%E7%9A%84%E4%B8%80%E6%AC%A1%E5%A4%B1%E7%9C%A0/" rel="next" title="寒假的一次失眠">
-                  寒假的一次失眠 <i class="fa fa-chevron-right"></i>
-                </a>
-            </div>
-          </div>
-    </footer>
+      
+    </header>
   </article>
-</div>
 
 
-
-
-
+    </div>
+  </div>
+  
+  
+  
 
 
 <script>
