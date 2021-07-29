@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://i.loli.net/2021/07/21/lDKW9A56QM4ERy3.jpg">
 <meta property="og:image" content="https://i.loli.net/2021/07/21/IdYDQiKG32pqA6B.png">
 <meta property="article:published_time" content="2021-07-21T12:44:06.000Z">
-<meta property="article:modified_time" content="2021-07-29T00:34:53.539Z">
+<meta property="article:modified_time" content="2021-07-29T03:42:27.118Z">
 <meta property="article:author" content="Roadshop">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://i.loli.net/2021/07/21/lDKW9A56QM4ERy3.jpg">
@@ -350,7 +350,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cprintf(&quot;956[0](pages&#39;s pa):\n&quot;);</span><br><span class="line">pde_t pde &#x3D; kern_pgdir[956];</span><br><span class="line">pte_t *pte &#x3D; KADDR(PTE_ADDR(pde));</span><br><span class="line">cprintf(&quot;%#08x\n&quot;, pte[0]);</span><br><span class="line"></span><br><span class="line">cprintf(&quot;960[283](pages&#39;s pa):\n&quot;);</span><br><span class="line">pde &#x3D; kern_pgdir[960];</span><br><span class="line">pte &#x3D; KADDR(PTE_ADDR(pde));</span><br><span class="line">cprintf(&quot;%#08x&quot;, pte[283]);</span><br></pre></td></tr></table></figure>
 <p>得到结果：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">956[0](pages&#39;s pa):</span><br><span class="line">0011b005</span><br><span class="line">960[283](pages&#39;s pa):</span><br><span class="line">0011b063</span><br></pre></td></tr></table></figure>
-<p>可见，前20位都是0011b，都做出了正确的映射。前一个的权限是005,也就是U-P。第二的权限是063，DA—WP，用户无法访问。<br>Lab2做得很艰难，直接看人家的博客看不懂，然后就开始看课程给的资料，看一次看不懂，各种资料换着看，加上抄抄代码，调试输出，最后终于搞懂了。最后的Challenge做了一个，就是显示虚拟地址对应的物理地址，大致怎么做还是很清楚的，但是一些代码上的具体的细节还是不太行，最后在网上抄了一个，能看懂。像修改权限位那些，就先没做，如果后面的Lab需要做了就再弄。</p>
+<p>可见，前20位都是0011b，都做出了正确的映射。前一个的权限是005,也就是U-P。第二的权限是063，DA—WP，用户无法访问。<br>Lab2做得很艰难，直接看人家的博客看不懂，然后就开始看课程给的资料，看一次看不懂，各种资料换着看，加上抄抄代码，调试输出，最后终于搞懂了。最后的Challenge做了一个，就是显示虚拟地址对应的物理地址，大致怎么做还是很清楚的，但是一些代码上的具体的细节还是不太行，最后在网上抄了一个，能看懂。像修改权限位那些，就先没做，如果后面的Lab需要了就再弄。</p>
 
     </div>
 
