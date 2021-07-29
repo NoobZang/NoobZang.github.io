@@ -9,13 +9,6 @@
   </url>
   
   <url>
-    <loc>http://example.com/2021/07/28/temp/</loc>
-    
-    <lastmod>2021-07-28</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://example.com/2021/04/04/%E5%AF%B9pytorch%E9%87%8CLSTM%E7%9A%84%E7%90%86%E8%A7%A3/</loc>
     
     <lastmod>2021-07-21</lastmod>
@@ -83,7 +76,7 @@
 
   
   <url>
-    <loc>http://example.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/</loc>
+    <loc>http://example.com/categories/6-828/</loc>
     <lastmod>2021-07-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
@@ -97,7 +90,7 @@
   </url>
   
   <url>
-    <loc>http://example.com/categories/6-828/</loc>
+    <loc>http://example.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/</loc>
     <lastmod>2021-07-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
