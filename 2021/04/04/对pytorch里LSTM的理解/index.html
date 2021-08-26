@@ -34,7 +34,7 @@
 <meta property="og:image" content="https://i.loli.net/2021/07/21/RqxUkVQuWchOzwI.png">
 <meta property="og:image" content="https://i.loli.net/2021/07/21/ygCJ3UZ6pVRnX29.jpg">
 <meta property="article:published_time" content="2021-04-04T09:38:56.000Z">
-<meta property="article:modified_time" content="2021-07-21T06:29:39.898Z">
+<meta property="article:modified_time" content="2021-08-26T06:44:33.012Z">
 <meta property="article:author" content="Roadshop">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://i.loli.net/2021/07/21/RqxUkVQuWchOzwI.png">
@@ -276,7 +276,7 @@
     <div class="post-body" itemprop="articleBody">
         <p>由于毕业设计里面要用到LSTM，但是之前没搞懂怎么用，输入输出的格式，所以在这记一下。</p>
 <a id="more"></a>
-<p>先看一下pytorch的官方网址<a target="_blank" rel="noopener" href="https://pytorch.org/docs/1.4.0/nn.html%EF%BC%8C%E6%88%91%E7%94%A8%E7%9A%84%E6%98%AF1.4%E7%89%88%E6%9C%AC%E3%80%82%E5%85%B6%E4%B8%AD%E5%AF%B9%E4%BA%8Enn.LSTM%E4%B8%BB%E8%A6%81%E7%94%A8%E5%88%B0%E7%9A%84%E8%BE%93%E5%85%A5%E5%8F%82%E6%95%B0%E6%9C%89%E4%BB%A5%E4%B8%8B%E5%87%A0%E4%B8%AA%EF%BC%9A">https://pytorch.org/docs/1.4.0/nn.html，我用的是1.4版本。其中对于nn.LSTM主要用到的输入参数有以下几个：</a>  </p>
+<p>先看一下pytorch的<a target="_blank" rel="noopener" href="https://pytorch.org/docs/1.4.0/nn.html">官方网址</a>，我用的是1.4版本。其中对于nn.LSTM主要用到的输入参数有以下几个：  </p>
 <table>
 <thead>
 <tr>
@@ -308,8 +308,8 @@
 
 
 <ul>
-<li>模型参数里面的<code>input_size</code>，官方文档里面写得也很清楚了，是<em>x</em>的特征的个数。图2是普通的神经网络的结构，在RNN/LSTM中，也是类似的。<code>input_size</code>对应于图2的一个<em>x</em>的<code>input</code>，在图2中是4。</li>
-<li><code>hidden_size</code>对应于图2里面<code>hidden</code>的神经元的个数，在图2中是3。</li>
+<li>模型参数里面的<code>input_size</code>，官方文档里面写得也很清楚了，是<em>x</em>的特征的个数。图2是普通的神经网络的结构，在RNN/LSTM中，也是类似的。<code>input_size</code>对应于图2的一个<em>x</em>的<code>input</code>，在图2中是4个。</li>
+<li><code>hidden_size</code>对应于图2里面<code>hidden</code>的神经元的个数，在图2中是3个。</li>
 <li><code>num_layers</code>是隐层的层数，对应于图1中的2层。</li>
 </ul>
 <p>整个图2的结构对应于图1中为黄色方框里面的内容。</p>
