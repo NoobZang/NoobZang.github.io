@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+<meta name="google-site-verification" content="ZuPSfZpWtpoO0Dlfq7CH6xYR_DgNEfn52UQLsdxRb_Y" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/theme-images/apple-touch-icon-cat.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/theme-images/favicon-32x32-cat.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/theme-images/favicon-16x16-cat.png">
+  <link rel="mask-icon" href="/theme-images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="在Lab2的笔记中，比较详细地描述了内存管理中的分页机制，但是并没有讲分段机制。这篇文章试着讲讲。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="谈谈分段机制">
+<meta property="og:url" content="http://example.com/2021/09/11/%E8%B0%88%E8%B0%88%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/index.html">
+<meta property="og:site_name" content="老约翰中医">
+<meta property="og:description" content="在Lab2的笔记中，比较详细地描述了内存管理中的分页机制，但是并没有讲分段机制。这篇文章试着讲讲。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i.loli.net/2021/09/11/4rFRtMLG8dmpsU6.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/09/11/rUcO3P1A5d9gXT4.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/09/11/kdxwAP3vaMRh2CI.jpg">
+<meta property="og:image" content="https://i.loli.net/2021/09/11/72OKkhcBZ98TD5J.jpg">
+<meta property="article:published_time" content="2021-09-11T02:05:08.000Z">
+<meta property="article:modified_time" content="2021-09-11T11:20:28.701Z">
+<meta property="article:author" content="Roadshop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2021/09/11/4rFRtMLG8dmpsU6.jpg">
+
+
+<link rel="canonical" href="http://example.com/2021/09/11/%E8%B0%88%E8%B0%88%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>谈谈分段机制 | 老约翰中医</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">老约翰中医</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8E%E5%AE%9E%E6%A8%A1%E5%BC%8F%E8%AE%B2%E8%B5%B7"><span class="nav-number">1.</span> <span class="nav-text">从实模式讲起</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">保护模式</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#80286%E4%B8%AD%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.1.</span> <span class="nav-text">80286中的保护模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#80386%E4%B8%AD%E7%9A%84%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.2.</span> <span class="nav-text">80386中的保护模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%9D%E6%8A%A4%E6%A8%A1%E5%BC%8F%E7%9A%84%E6%B5%81%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">保护模式的流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%81%E5%B9%B3%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.4.</span> <span class="nav-text">扁平模式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">参考：</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Roadshop</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/NoobZang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;NoobZang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:roadshop7@outlook.com" title="E-Mail → mailto:roadshop7@outlook.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/11/%E8%B0%88%E8%B0%88%E5%88%86%E6%AE%B5%E6%9C%BA%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Roadshop">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老约翰中医">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          谈谈分段机制
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-09-11 10:05:08" itemprop="dateCreated datePublished" datetime="2021-09-11T10:05:08+08:00">2021-09-11</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/6-828/" itemprop="url" rel="index"><span itemprop="name">6.828</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>在Lab2的笔记中，比较详细地描述了内存管理中的分页机制，但是并没有讲分段机制。这篇文章试着讲讲。</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">           Selector  +--------------+         +-----------+</span><br><span class="line">          ----------&gt;|              |         |           |</span><br><span class="line">                     | Segmentation |         |  Paging   |</span><br><span class="line">Software             |              |--------&gt;|           |----------&gt;  RAM</span><br><span class="line">            Offset   |  Mechanism   |         | Mechanism |</span><br><span class="line">          ----------&gt;|              |         |           |</span><br><span class="line">                     +--------------+         +-----------+</span><br><span class="line">            Virtual                   Linear                Physical</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这是整个地址的转换过程。  </p>
+<h1 id="从实模式讲起"><a href="#从实模式讲起" class="headerlink" title="从实模式讲起"></a>从实模式讲起</h1><p>在实模式中，需要寻址20位的空间，2^20即1MB。但4个相关的寄存器<code>CS(code segment)</code>, <code>DS(data segment)</code>, <code>SS(stack segment)</code>, <code>ES(extra segment)</code>都是16位的。寻址时用到16位的CS和一个16位的<code>IP(Instruction Pointer)</code>：把16位的<code>CS</code>左移4位，低4位就全为0，再加上16位的<code>IP</code>，得到20位的地址，即为物理地址。这样也被称为<code>CS:IP</code>对。<br>注意：每个segment都是16位的，2^16(64KB)。但每段并不一定用完这64KB。而且不同的<code>CS:IP</code>对也可能计算得出相同的物理地址，所以在内存空间中，不同的segment可能会有重叠。</p>
+<h1 id="保护模式"><a href="#保护模式" class="headerlink" title="保护模式"></a>保护模式</h1><h2 id="80286中的保护模式"><a href="#80286中的保护模式" class="headerlink" title="80286中的保护模式"></a>80286中的保护模式</h2><p>从80286中，有了保护模式，现在可寻址24位的空间，2^24(16MB)。但并不是通过继续左移<code>CS</code>来完成的。现在的<code>CS</code>里有一个<code>index</code>，指向一个<code>segment descriptor</code>，在这个<code>descriptor</code>中有一个24位的基地址，用16位的<code>IP</code>加上这个基地址就得到了物理地址。</p>
+<h2 id="80386中的保护模式"><a href="#80386中的保护模式" class="headerlink" title="80386中的保护模式"></a>80386中的保护模式</h2><p>80386在分段后多了一个分页机制，还多了两个段寄存器<code>FS</code>和<code>GS</code>，CPU没有指定这两个寄存器的用途。下面是80386的一些寄存器。<br><img src="https://i.loli.net/2021/09/11/4rFRtMLG8dmpsU6.jpg" alt="80386的寄存器.JPG"><br>主要看<code>segemnt register</code>，每个寄存器都是16位，但是还有不可见部分。<br><img src="https://i.loli.net/2021/09/11/rUcO3P1A5d9gXT4.jpg" alt="可见与不可见.JPG"><br>在可见部分的16位，结构如下：<br><img src="https://i.loli.net/2021/09/11/kdxwAP3vaMRh2CI.jpg" alt="可见的16位.JPG"><br>每个16位中都有13位的<code>index</code>，最多可指向2^13(8192)个<code>descriptor</code>。<code>Table Indicator</code>指示是GDT还是LDT。RPL是保护模式中的等级。<br>GDT(global descriptor table)就像一个数组，每项为64位(8byte)，最多可以有8192项，每项的结构为：<br><img src="https://i.loli.net/2021/09/11/72OKkhcBZ98TD5J.jpg" alt="segment descriptor.JPG"><br>有32位的基地址，<code>segment limit</code>的长度为20位。其他的是一些权限、控制位。</p>
+<h2 id="保护模式的流程"><a href="#保护模式的流程" class="headerlink" title="保护模式的流程"></a>保护模式的流程</h2><p>在80386中，有GDT和LDT。通过<code>LGDT</code>(load)得到<code>GDTR(GDT Register)</code>，<code>GDTR</code>里存储了GDT的基地址和GDT的大小。<code>SGDT</code>(store)存入<code>GDTR</code>。LDT同理。寻址时，通过<code>DS/CS</code>等<code>segment register</code>中的<code>index</code>找到对应的index，乘以8后加上<code>GDTR</code>中的基地址，即可找到对应的项（index*8+基地址，*8是因为<code>segment descriptor</code>的大小为8byte）。在<code>segment descriptor</code>中得到对应的<code>segment</code>的基地址后，加上32位的<code>EIP</code>，形成线性地址，下一步就是分页。<br>通过这种方式，使得GDT和LDT存储了一些全局的和局部的<code>descriptor</code>，程序运行时，通过对应的<code>segment register</code>找到这些<code>descriptor</code>，这样就形成了分段。通过不同的段进行第一层的内存管理。</p>
+<h2 id="扁平模式"><a href="#扁平模式" class="headerlink" title="扁平模式"></a>扁平模式</h2><p>然而，后来的操作系统并不想使用这个从16位系统遗留下来的分段机制。但是CPU为了兼容性还保留了分段机制，而且不能关闭，所以许多操作系统模拟扁平模式。具体做法是让<code>kernel CS/kernel DS/user CS/user DS</code>对应的<code>segment descriptor</code>基地址都为0，<code>limit</code>都为4GB，这样就使得通过分段后，得到的线性地址为0+<code>EIP</code>还是等于<code>EIP</code>，分段对<code>EIP</code>无影响。而<code>EIP</code>是32位的，已经能独立寻址4GB的空间，也是在<code>limit</code>的范围之内的。通过这种方式，在不关闭分段机制的前提下使得地址转换不受分段机制的影响。<br>有一个问题是<code>limit</code>位只有20位，如何能表示32位(4GB)的空间？这是因为在<code>segment descriptor</code>中有一个<code>Granularity</code>位，为0时表示<code>limit</code>的单位为byte，此时最多包括2^20(1MB)的空间；为1时表示<code>limit</code>的单位为4096byte(一页)，此时最多包括2^20(1M)*4KB=4GB的空间，和之前的是相对应的。</p>
+<h1 id="参考："><a href="#参考：" class="headerlink" title="参考："></a>参考：</h1><ul>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/X86_memory_segmentation">X86 memory segmentation</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikichip.org/w/images/3/3e/AMD_80286_Datasheet_%28November_1985%29.pdf">80286</a></li>
+<li><a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2018/readings/i386/s02_03.htm">80386的寄存器</a></li>
+<li><a target="_blank" rel="noopener" href="https://pdos.csail.mit.edu/6.828/2018/readings/i386/s05_01.htm">段转换</a></li>
+<li><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Segment_descriptor">segment descriptor</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/07/21/6-828%E7%AC%94%E8%AE%B0-Lab-2-Memory-Management/" rel="prev" title="6.828笔记 Lab 2: Memory Management">
+                  <i class="fa fa-chevron-left"></i> 6.828笔记 Lab 2: Memory Management
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Roadshop</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+</body>
+</html>
