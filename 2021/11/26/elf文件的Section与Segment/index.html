@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+<meta name="google-site-verification" content="ZuPSfZpWtpoO0Dlfq7CH6xYR_DgNEfn52UQLsdxRb_Y" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/theme-images/apple-touch-icon-cat.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/theme-images/favicon-32x32-cat.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/theme-images/favicon-16x16-cat.png">
+  <link rel="mask-icon" href="/theme-images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="之前在做6.828Lab的时候，就看过elf文件。维基百科上面写了除了有elf的File header，还有Program header和Section header。对于后面这两者我当时分不清，在kern&#x2F;env.c&#x2F;load_icode()里面，加载一个可执行文件到进程中的那部分也不太清楚，抄的。最近在看《程序员的自我修养——链接、装载与库》这本书，解决了一些疑惑，所以记录一下。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="elf文件的Section与Segment">
+<meta property="og:url" content="http://example.com/2021/11/26/elf%E6%96%87%E4%BB%B6%E7%9A%84Section%E4%B8%8ESegment/index.html">
+<meta property="og:site_name" content="老约翰中医">
+<meta property="og:description" content="之前在做6.828Lab的时候，就看过elf文件。维基百科上面写了除了有elf的File header，还有Program header和Section header。对于后面这两者我当时分不清，在kern&#x2F;env.c&#x2F;load_icode()里面，加载一个可执行文件到进程中的那部分也不太清楚，抄的。最近在看《程序员的自我修养——链接、装载与库》这本书，解决了一些疑惑，所以记录一下。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-11-26T08:25:04.000Z">
+<meta property="article:modified_time" content="2021-11-26T11:23:56.393Z">
+<meta property="article:author" content="Roadshop">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2021/11/26/elf%E6%96%87%E4%BB%B6%E7%9A%84Section%E4%B8%8ESegment/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>elf文件的Section与Segment | 老约翰中医</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">老约翰中医</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8E%E6%BA%90%E6%96%87%E4%BB%B6%E8%AE%B2%E8%B5%B7"><span class="nav-number">1.</span> <span class="nav-text">从源文件讲起</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">预处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91"><span class="nav-number">1.2.</span> <span class="nav-text">编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B1%87%E7%BC%96"><span class="nav-number">1.3.</span> <span class="nav-text">汇编</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5"><span class="nav-number">1.4.</span> <span class="nav-text">链接</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#elf%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">elf文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%AF%E5%86%99%E7%9A%84%E4%BB%A3%E7%A0%81%E6%AE%B5"><span class="nav-number">3.</span> <span class="nav-text">可写的代码段</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Roadshop</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/NoobZang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;NoobZang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:roadshop7@outlook.com" title="E-Mail → mailto:roadshop7@outlook.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/26/elf%E6%96%87%E4%BB%B6%E7%9A%84Section%E4%B8%8ESegment/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Roadshop">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老约翰中医">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          elf文件的Section与Segment
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-11-26 16:25:04" itemprop="dateCreated datePublished" datetime="2021-11-26T16:25:04+08:00">2021-11-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/6-828/" itemprop="url" rel="index"><span itemprop="name">6.828</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>之前在做6.828Lab的时候，就看过elf文件。维基百科上面写了除了有elf的File header，还有Program header和Section header。对于后面这两者我当时分不清，在<code>kern/env.c/load_icode()</code>里面，加载一个可执行文件到进程中的那部分也不太清楚，抄的。最近在看《程序员的自我修养——链接、装载与库》这本书，解决了一些疑惑，所以记录一下。</p>
+<a id="more"></a>
+<h1 id="从源文件讲起"><a href="#从源文件讲起" class="headerlink" title="从源文件讲起"></a>从源文件讲起</h1><p>就以C来举例子（因为现在在看的，做的都是C，其他的不懂）。写好一个.c文件后，在ide里面，点一下运行就全部完成了。实际上，隐藏在ide背后的基本有这些步骤：</p>
+<h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><p>处理以#开头的行。包括<code>include</code>，<code>define</code>等。如，对于<code>include</code>，把包含的文件内容替换，此过程是递归的，一直替换，直到文件中不含<code>include</code>。对于<code>define</code>，在对应位置展开宏定义。</p>
+<h2 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h2><p>我没学过编译原理，只知道输入就是上一步预处理的结果，输出是汇编代码。中间有词法分析、语法分析等这些。输出的汇编代码是.s文件。</p>
+<h2 id="汇编"><a href="#汇编" class="headerlink" title="汇编"></a>汇编</h2><p>把汇编代码转换成二进制机器码，直接按照汇编指令和机器指令对照表翻译就可以了。输出目标文件（Object file），是.o文件，elf格式的。</p>
+<h2 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h2><p>链接不同的.o文件，重定位等，这里不细讲。最后输出可执行文件，也是elf格式的。  </p>
+<h1 id="elf文件"><a href="#elf文件" class="headerlink" title="elf文件"></a>elf文件</h1><p>elf文件中有一个File header，里面记录了一些基本信息。和本文相关并且比较重要的有：</p>
+<ul>
+<li>e_entry：程序的入口地址</li>
+<li>e_phoff：program header table在此文件中的的offset</li>
+<li>e_shoff：section header table在此文件中的的offset</li>
+<li>e_phnum：program header table含有的项数（可以把这个表想成一个数组，其中一个元素就是一项）</li>
+<li>e_shnum：section header table含有的项数  </li>
+</ul>
+<p>对于elf文件本身来讲，更关注的是section。在目标文件和可执行文件中，都会有不同的section，如</p>
+<ul>
+<li>.text：代码段，是代码的二进制表示</li>
+<li>.data：数据段，保存已初始化的全局变量和局部静态变量</li>
+<li>.bss：保存未初始化的全局变量和局部静态变量</li>
+<li>.rodata：保存只读数据  </li>
+</ul>
+<p>当然，其他还有很多，在这里就不列举了。这些section，对于进程来讲，都有不同的属性，如.text是可读可执行的，.data是可读可写的，.rodata只读。前面在做Lab的时候也知道，在虚拟内存管理中，页表（PDE/PTE）都有12位的权限位来设置权限，可以跟上面这些属性对应起来。如果直接按照section加载进内存中的话，分配的最小单位是页，有些section的内容很少，但是也要占一页4KB，产生了很多的页内碎片。为了解决这个问题，很自然地，可以把相同属性的section放在一起，一起打包加载进内存，毕竟对于进程来讲，不管它是.text还是.data，只要权限相同就是一样的。这就形成了前面讲的segment。在链接过程中，链接器会尽量把相同属性的section放在一起，这些属性相同，空间上在一起的section合起来就成了一个segment。所以，对于操作系统来讲，装载可执行文件的时候是按照segment来装载的：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">void</span></span><br><span class="line">load_icode(struct Env *e, <span class="keyword">uint8_t</span> *binary)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Elf</span>* <span class="title">elf</span> =</span> (struct Elf*)binary;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Proghdr</span> *<span class="title">ph</span>, *<span class="title">eph</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (elf-&gt;e_magic != ELF_MAGIC)</span><br><span class="line">        panic(<span class="string">&quot;load_icode(): not an ELF file!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    ph = (struct Proghdr *) (binary + elf-&gt;e_phoff);</span><br><span class="line">    eph = ph + elf-&gt;e_phnum;</span><br><span class="line"></span><br><span class="line">    lcr3(PADDR(e-&gt;env_pgdir));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (; ph &lt; eph; ph++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(ph-&gt;p_type != ELF_PROG_LOAD)</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        <span class="keyword">if</span>(ph-&gt;p_filesz &gt; ph-&gt;p_memsz)</span><br><span class="line">            panic(<span class="string">&quot;load_icode(): ph-&gt;p_filesz &gt; ph-&gt;p_memsz!&quot;</span>);</span><br><span class="line">        region_alloc(e, (<span class="keyword">void</span> *)ph-&gt;p_va, ph-&gt;p_memsz);</span><br><span class="line">        <span class="built_in">memcpy</span>((<span class="keyword">void</span> *)(ph-&gt;p_va), (<span class="keyword">void</span> *)(binary + ph-&gt;p_offset), ph-&gt;p_filesz);</span><br><span class="line">        <span class="built_in">memset</span>((<span class="keyword">void</span> *)(ph-&gt;p_va + ph-&gt;p_filesz), <span class="number">0</span>, ph-&gt;p_memsz - ph-&gt;p_filesz);</span><br><span class="line">    &#125;</span><br><span class="line">    e-&gt;env_tf.tf_eip = elf-&gt;e_entry;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Now map one page for the program&#x27;s initial stack</span></span><br><span class="line">    <span class="comment">// at virtual address USTACKTOP - PGSIZE.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// LAB 3: Your code here.</span></span><br><span class="line">    region_alloc(e, (<span class="keyword">void</span> *)USTACKTOP - PGSIZE, PGSIZE);</span><br><span class="line">    lcr3(PADDR(kern_pgdir));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Program header里面存放的就是不同的segment的信息。加载时，只加载类型为<code>ELF_PROG_LOAD</code>的segment，因为有些segment是不需要加载的。<code>p_filesz</code>是此segment在可执行文件中的大小，<code>p_memsz</code>是在内存中的大小。而<code>p_memsz</code>要大于等于<code>p_filesz</code>，是因为有些section只存在于section header table，并没有占用实际空间，但是在加载到内存时是要分配内存空间的。比如.bss，保存未初始化的全局变量和局部静态变量。如果用一些命令查看elf文件的section header table，会发现.bss这一项在elf文件中的地址和其他某一项的地址相同，而.bss的大小又不为0（也可能为0，比如没有未初始化的全局变量和局部静态变量）。结合代码看就比较好理解了，为这整个segment分配<code>p_memsz</code>大小的空间后，把有内容的（<code>p_filesz</code>大小的）复制过去，剩下的<code>ph-&gt;p_memsz - ph-&gt;p_filesz</code>大小的填为0，也就是默认初始化为0。这样就实现了节省空间。<br>另外需要注意的几点：</p>
+<ol>
+<li>加载前，从内核页表换成进程页表，是为了只在进程的页表中建立对应的映射关系，加载完以后又换回去了。</li>
+<li>所谓的加载，其实也就是<code>memcpy</code>，直接把可执行文件中的二进制数据复制到对应的地方<code>ph-&gt;p_va</code>，即该segment的起始虚拟地址。</li>
+<li>这里加载的是可执行文件。而对于目标文件来讲，还没有链接，不需要装载，所以没有segment，也就没有program header table。</li>
+<li><code>region_alloc()</code>函数设置的权限位是<code>PTE_U | PTE_W</code>，是可读可写的。代码注释（我删了，因为有点长，不好看）中也说了，All page protection bits should be user read/write for now.所以本应该是可读可执行的.text，现在也变成可写的了。Lab中的操作系统页表的权限位好像本来就没有可执行这一选项，所以所有加载到内存的segment都是可读可写的。利用这一漏洞，做了下面的实验。  </li>
+</ol>
+<h1 id="可写的代码段"><a href="#可写的代码段" class="headerlink" title="可写的代码段"></a>可写的代码段</h1><p>修改<code>user/hello.c</code>文件如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">umain</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> **argv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> a = <span class="number">10</span>;</span><br><span class="line">    <span class="keyword">char</span> *ptr = (<span class="keyword">void</span> *)<span class="number">0x8000d1</span>;</span><br><span class="line">    cprintf(<span class="string">&quot;before modify:%02x %02x %02x %02x %02x %02x %02x\n&quot;</span>, (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*ptr, (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">1</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">2</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">3</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">4</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">5</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">6</span>));</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>((<span class="keyword">void</span> *)<span class="number">0x8000d2</span>, <span class="number">0x7f</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    cprintf(<span class="string">&quot;after modify:%02x %02x %02x %02x %02x %02x %02x\n&quot;</span>, (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*ptr, (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">1</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">2</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">3</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">4</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">5</span>), (<span class="keyword">unsigned</span> <span class="keyword">char</span>)*(ptr+<span class="number">6</span>));</span><br><span class="line"></span><br><span class="line">    cprintf(<span class="string">&quot;a: %d\n&quot;</span>, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>定义a为10，修改0x8000d2处为0x7f，然后打印。0x8000d2就是汇编代码中a的地址，可以通过<code>obj/user/hello.asm</code>查看或者<code>objdump -d obj/user/hello</code>查看。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  cprintf(&quot;a: %d\n&quot;, a);</span><br><span class="line">8000ce:   83 c4 28                add    $0x28,%esp</span><br><span class="line">8000d1:   6a 0a                   push   $0xa</span><br><span class="line">8000d3:   68 a5 10 80 00          push   $0x8010a5</span><br><span class="line">8000d8:   e8 fc 00 00 00          call   8001d9 &lt;cprintf&gt;</span><br></pre></td></tr></table></figure>
+<p>前面定义a的时候其实在汇编代码里并没有定义，只是在最后<code>cprintf</code>前直接装进调用栈里面去了，这应该是编译器的优化。8000d1为6a，是<code>push</code>的机器码，0a就是10。然后<code>push</code>进<code>&quot;a: %d\n&quot;</code>的字符串，然后调用打印函数。<code>memset((void *)0x8000d2, 0x7f, 1);</code>是把0x8000d2处的1个字节设置为0x7f。修改前后打印出8000d1开始的7个字节，至于为什么要(unsigned char)，见<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/8060170/printing-hexadecimal-characters-in-c">这里</a>。运行结果如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">before modify:6a 0a 68 a5 10 80 00</span><br><span class="line">after modify:6a 7f 68 a5 10 80 00</span><br><span class="line">a: 127</span><br></pre></td></tr></table></figure>
+<p>127是0x7f的十进制。改成0x80后输出-128。也就是补码形式。二进制代码复制到内存中去以后，运行时对于可写的.text用代码实现再次写入，就实现了上面的效果。这只是在此操作系统把.text设置为可写的情况下才是可行的。对于正常情况，我在ubuntu下用此方法改代码，能够编译链接通过，但是运行时报错：段错误 (核心已转储)。在此代码中修改的地方是0x6c6，查看可执行文件的program header table，对于从虚拟地址0开始，大小为0x8b0的可加载的segment，属性是R和E，即可读和可执行，没有可写，所以正常情况下是修改不了的。然后我搜了下，给gcc传递一些参数好像能让.text可写，但我没细看了，因为都已经不太重要了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/10/09/6-828%E7%AC%94%E8%AE%B0-Lab-3-User-Environments/" rel="prev" title="6.828笔记 Lab 3: User Environments">
+                  <i class="fa fa-chevron-left"></i> 6.828笔记 Lab 3: User Environments
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Roadshop</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+</body>
+</html>
