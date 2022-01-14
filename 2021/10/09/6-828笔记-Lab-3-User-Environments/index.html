@@ -35,7 +35,7 @@
 <meta property="og:image" content="https://i.loli.net/2021/10/09/fW2g7HD9o3GBwyi.jpg">
 <meta property="og:image" content="https://i.loli.net/2021/10/09/Gmt3P51JLnuQVwe.jpg">
 <meta property="article:published_time" content="2021-10-09T07:23:16.000Z">
-<meta property="article:modified_time" content="2021-10-20T13:24:43.380Z">
+<meta property="article:modified_time" content="2022-01-13T06:21:51.968Z">
 <meta property="article:author" content="Roadshop">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://i.loli.net/2021/10/09/UpaoPnWGMLXhC9O.png">
@@ -176,7 +176,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -310,7 +310,7 @@
 <li>此时<code>cs:eip</code>和<code>ss:esp</code>都指向内核，执行操作系统中中断/异常处理程序。</li>
 </ol>
 <p><strong>注意：</strong><br><strong>1. 上述过程是经过简化的，实际上还要检查权限位等操作。</strong><br><strong>2. 有些中断除了<code>push</code>那5个寄存器的值，还需要<code>push error code</code>。</strong><br><strong>3. 从用户态到内核态时，需要保存原来的栈的信息（<code>ss</code>和<code>esp</code>）。但是如果发生中断/异常时，已经处于内核态了，就不需要保存了，因为本来就在内核栈中，只需要<code>push old eflags, push old cs, push old eip</code>。这和<a href="#iret">之前的</a><code>iret</code>在不同权限转换情况下的处理是相对应的。</strong><br><strong>4. 以上<code>push</code>的值和接下来操作系统<code>push</code>的值都是<code>push</code>到内核栈（以KSTACKTOP=0xf0000000为顶部，因为设置的<code>esp</code>就是这个地方）。</strong><br>下面这张图说明了这几种情况：<br><img src="https://i.loli.net/2021/10/09/Gmt3P51JLnuQVwe.jpg" alt="中断异常的栈.jpg"></p>
-<p>以上是<strong>处理器</strong>的操作，此时<code>cs:eip</code>和<code>ss:esp</code>都指向内核空间，下一步是执行操作系统中中断/异常处理程序。其中，<code>ss</code>和<code>esp</code>是在<code>TSS</code>中定义的，而<code>TSS</code>是在<code>kern/trp.c/trap_init_percpu()</code>中定义的，<code>cs</code>和<code>eip</code>是在<code>kern/trapentry.S</code>和<code>kern/trp.c/trap_init()</code>中共同定义的。每种处理程序先<code>push 0</code>作为<code>error code</code>（如果处理器已经<code>push</code>了则不需要），然后<code>push</code>中断向量（0~255的数字，也就是<a href="#stack">上图</a>中的<code>trapno</code>），然后跳转到<code>_alltraps</code>函数：</p>
+<p>以上是<strong>处理器</strong>的操作，此时<code>cs:eip</code>和<code>ss:esp</code>都指向内核空间，下一步是执行<strong>操作系统</strong>中中断/异常处理程序。其中，<code>ss</code>和<code>esp</code>是在<code>TSS</code>中定义的，而<code>TSS</code>是在<code>kern/trap.c/trap_init_percpu()</code>中定义的，<code>cs</code>和<code>eip</code>是在<code>kern/trapentry.S</code>和<code>kern/trap.c/trap_init()</code>中共同定义的。每种处理程序先<code>push 0</code>作为<code>error code</code>（如果处理器已经<code>push</code>了则不需要），然后<code>push</code>中断向量（0~255的数字，也就是<a href="#stack">上图</a>中的<code>trapno</code>），然后跳转到<code>_alltraps</code>函数：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">_alltraps:</span><br><span class="line">    pushl %ds</span><br><span class="line">    pushl %es</span><br><span class="line">    pushal</span><br><span class="line"></span><br><span class="line">    movw $GD_KD, %ax</span><br><span class="line">    movw %ax, %ds</span><br><span class="line">    movw %ax, %es</span><br><span class="line"></span><br><span class="line">    pushl %esp</span><br><span class="line">    call trap</span><br></pre></td></tr></table></figure>
 <p>其实就是用前三行又构造了一个和<a href="#stack">上图</a>中一样的<a href="#Trapframe"><code>Trapframe</code></a>，然后把此<code>Trapframe</code>的地址（<code>esp</code>）放入栈中，作为参数传给<code>kern/trap.c/trap()</code>。此时已经能够处理一些异常了。  </p>
 <h2 id="验证1"><a href="#验证1" class="headerlink" title="验证1"></a>验证1</h2><p>执行<code>user_hello</code>程序，800b44是<code>int    $0x30</code>，在此处打断点，此时各个寄存器的值为：</p>
@@ -434,7 +434,7 @@
 
 <div class="copyright">
   &copy; 2020 – 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

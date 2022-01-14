@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://example.com/2022/01/14/6-828%E7%AC%94%E8%AE%B0-Lab-4-Preemptive-Multitasking/</loc>
+    
+    <lastmod>2022-01-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://example.com/2021/10/09/6-828%E7%AC%94%E8%AE%B0-Lab-3-User-Environments/</loc>
+    
+    <lastmod>2022-01-13</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://example.com/2021/03/03/%E5%AF%92%E5%81%87%E7%9A%84%E4%B8%80%E6%AC%A1%E5%A4%B1%E7%9C%A0/</loc>
     
     <lastmod>2021-11-26</lastmod>
@@ -12,13 +26,6 @@
     <loc>http://example.com/2021/11/26/elf%E6%96%87%E4%BB%B6%E7%9A%84Section%E4%B8%8ESegment/</loc>
     
     <lastmod>2021-11-26</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://example.com/2021/10/09/6-828%E7%AC%94%E8%AE%B0-Lab-3-User-Environments/</loc>
-    
-    <lastmod>2021-10-20</lastmod>
     
   </url>
   
@@ -88,7 +95,7 @@
 
   <url>
     <loc>http://example.com/</loc>
-    <lastmod>2021-11-26</lastmod>
+    <lastmod>2022-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -98,21 +105,21 @@
   
   <url>
     <loc>http://example.com/categories/6-828/</loc>
-    <lastmod>2021-11-26</lastmod>
+    <lastmod>2022-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/categories/%E6%9D%82%E8%AE%B0/</loc>
-    <lastmod>2021-11-26</lastmod>
+    <lastmod>2022-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://example.com/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/</loc>
-    <lastmod>2021-11-26</lastmod>
+    <lastmod>2022-01-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

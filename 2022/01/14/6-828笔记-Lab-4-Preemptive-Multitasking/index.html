@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+<meta name="google-site-verification" content="ZuPSfZpWtpoO0Dlfq7CH6xYR_DgNEfn52UQLsdxRb_Y" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/theme-images/apple-touch-icon-cat.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/theme-images/favicon-32x32-cat.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/theme-images/favicon-16x16-cat.png">
+  <link rel="mask-icon" href="/theme-images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="Lab4主要分为三个部分。第一部分扩展JOS支持多CPU，实现轮转调度，添加了几个基本的进程管理的系统调用。第二部分实现了一个Unix-like的fork()。第三部分是抢占式多任务处理和进程间通信。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6.828笔记 Lab 4: Preemptive Multitasking">
+<meta property="og:url" content="http://example.com/2022/01/14/6-828%E7%AC%94%E8%AE%B0-Lab-4-Preemptive-Multitasking/index.html">
+<meta property="og:site_name" content="老约翰中医">
+<meta property="og:description" content="Lab4主要分为三个部分。第一部分扩展JOS支持多CPU，实现轮转调度，添加了几个基本的进程管理的系统调用。第二部分实现了一个Unix-like的fork()。第三部分是抢占式多任务处理和进程间通信。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/01/10/vdqC4ymTZ2oLlKc.png">
+<meta property="article:published_time" content="2022-01-14T06:50:01.000Z">
+<meta property="article:modified_time" content="2022-01-14T12:52:02.848Z">
+<meta property="article:author" content="Roadshop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/01/10/vdqC4ymTZ2oLlKc.png">
+
+
+<link rel="canonical" href="http://example.com/2022/01/14/6-828%E7%AC%94%E8%AE%B0-Lab-4-Preemptive-Multitasking/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>6.828笔记 Lab 4: Preemptive Multitasking | 老约翰中医</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">老约翰中医</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Multiprocessor-Support-and-Cooperative-Multitasking"><span class="nav-number">1.</span> <span class="nav-text">Multiprocessor Support and Cooperative Multitasking</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Multiprocessor-Support"><span class="nav-number">1.1.</span> <span class="nav-text">Multiprocessor Support</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Per-CPU"><span class="nav-number">1.2.</span> <span class="nav-text">Per-CPU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E9%94%81"><span class="nav-number">1.3.</span> <span class="nav-text">加锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AE%E8%BD%AC%E8%B0%83%E5%BA%A6"><span class="nav-number">1.4.</span> <span class="nav-text">轮转调度</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E7%AE%A1%E7%90%86%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="nav-number">1.5.</span> <span class="nav-text">进程管理的系统调用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Copy-on-Write-Fork"><span class="nav-number">2.</span> <span class="nav-text">Copy-on-Write Fork</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#User-level-page-fault-handling"><span class="nav-number">2.1.</span> <span class="nav-text">User-level page fault handling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Copy-on-Write-Fork-1"><span class="nav-number">2.2.</span> <span class="nav-text">Copy-on-Write Fork</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Preemptive-Multitasking-and-Inter-Process-communication-IPC"><span class="nav-number">3.</span> <span class="nav-text">Preemptive Multitasking and Inter-Process communication (IPC)</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%A2%E5%8D%A0%E5%BC%8F%E5%A4%9A%E4%BB%BB%E5%8A%A1"><span class="nav-number">3.1.</span> <span class="nav-text">抢占式多任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1"><span class="nav-number">3.2.</span> <span class="nav-text">进程间通信</span></a></li></ol></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Roadshop</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/NoobZang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;NoobZang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:roadshop7@outlook.com" title="E-Mail → mailto:roadshop7@outlook.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/01/14/6-828%E7%AC%94%E8%AE%B0-Lab-4-Preemptive-Multitasking/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Roadshop">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老约翰中医">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          6.828笔记 Lab 4: Preemptive Multitasking
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-01-14 14:50:01" itemprop="dateCreated datePublished" datetime="2022-01-14T14:50:01+08:00">2022-01-14</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/6-828/" itemprop="url" rel="index"><span itemprop="name">6.828</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Lab4主要分为三个部分。第一部分扩展JOS支持多CPU，实现轮转调度，添加了几个基本的进程管理的系统调用。第二部分实现了一个Unix-like的fork()。第三部分是抢占式多任务处理和进程间通信。</p>
+<a id="more"></a>
+<h1 id="Multiprocessor-Support-and-Cooperative-Multitasking"><a href="#Multiprocessor-Support-and-Cooperative-Multitasking" class="headerlink" title="Multiprocessor Support and Cooperative Multitasking"></a>Multiprocessor Support and Cooperative Multitasking</h1><h2 id="Multiprocessor-Support"><a href="#Multiprocessor-Support" class="headerlink" title="Multiprocessor Support"></a>Multiprocessor Support</h2><p>这一步部分主要涉及对称多处理SMP（symmetric multiprocessing）。这种处理方式能够让所有的CPU有相同的权限/机会去获取系统资源，比如内存，I/O总线等。但是在启动阶段，这些CPU不是对称的，分为bootstrap processor（BSP）和application processors（APs）。BSP负责初始化，启动操作系统；AP则在BSP启动操作系统后才会被BSP启动。在多处理器下，哪一个CPU是BSP是由硬件和BIOS决定的。之前写的代码只有一个CPU，这个CPU一直是BSP。在SMP中，每一个CPU都有一个对应的local APIC（LAPIC）单元。LAPIC负责给系统传送中断。<br>那些LAPIC以及其他的和SMP相关的代码先不看，<del>主要是因为看不懂</del>。就直接看<code>kern/init.c</code>里的初始化过程。一个BSP执行完前面的一些初始化后，跳转到函数<code>boot_aps()</code>。这个函数会启动APs。首先通过</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">code = KADDR(MPENTRY_PADDR);</span><br><span class="line">memmove(code, mpentry_start, mpentry_end - mpentry_start);</span><br></pre></td></tr></table></figure>
+<p>把<code>kern/mpentry.S</code>的代码复制到<code>MPENTRY_PADDR</code>处（0x7000，所以Lab会让修改<code>kern/pmap.c/page_init()</code>，不把这个地方的页加入<code>page_free_list</code>）。然后对于每一个AP，通过<code>lapic_startap()</code>函数发送startup IPI给对应的LAPIC。然后对应的AP会开始执行<code>kern/mpentry.S</code>，并且是以实模式启动的（之前把<code>kern/mpentry.S</code>的代码复制到0x7000处就是因为如果放的位置太高了，实模式下是寻址不到的）。<code>kern/mpentry.S</code>和<code>boot/boot.S</code>类似，都是启动CPU的。但有几点需要注意：</p>
+<ul>
+<li><code>kern/mpentry.S</code>里用了这么个define：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MPBOOTPHYS(s) ((s) - mpentry_start + MPENTRY_PADDR)</span></span><br></pre></td></tr></table></figure>
+这是因为现在这份代码里用到的符号的地址是经过链接器处理，是虚拟地址。而现在CPU是实模式，只能通过真实物理地址来寻址，所以做这么个变换。</li>
+<li>每个CPU都会设置自己专属的内核栈，这个下面会讲。  </li>
+</ul>
+<p>最后AP会跳转到<code>kern/init.c/mp_main()</code>，在这里面再做一些初始化设置后，把CPU的状态置为<code>CPU_STARTED</code>。在上面AP运行的过程中，BSP在<code>kern/init.c/boot_aps()</code>中一直是</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span>(c-&gt;cpu_status != CPU_STARTED)</span><br><span class="line">    ;</span><br></pre></td></tr></table></figure>
+<p>BSP接收到<code>CPU_STARTED</code>的信号后，才开始启动下一个AP。此时刚才刚被启动的AP会开始去调度进程（找到一个状态为<code>ENV_RUNNABLE</code>的进程，<code>env_run()</code>执行它。具体的下面会讲）。  </p>
+<h2 id="Per-CPU"><a href="#Per-CPU" class="headerlink" title="Per-CPU"></a>Per-CPU</h2><p>每一个CPU都会有自己的一些状态，寄存器等，这些在<code>kern/cpu.h</code>里有定义。需要改代码的是关于CPU的内核栈，每个CPU都需要一个单独的内核栈，具体的分布如图</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">   4 Gig --------&gt;  +------------------------------+</span><br><span class="line">                    |                              | RW&#x2F;--</span><br><span class="line">                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span><br><span class="line">                    :              .               :</span><br><span class="line">                    :              .               :</span><br><span class="line">                    :              .               :</span><br><span class="line">                    |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~| RW&#x2F;--</span><br><span class="line">                    |                              | RW&#x2F;--</span><br><span class="line">                    |   Remapped Physical Memory   | RW&#x2F;--</span><br><span class="line">                    |                              | RW&#x2F;--</span><br><span class="line">   KERNBASE, ----&gt;  +------------------------------+ 0xf0000000      --+</span><br><span class="line">   KSTACKTOP        |     CPU0&#39;s Kernel Stack      | RW&#x2F;--  KSTKSIZE   |</span><br><span class="line">                    | - - - - - - - - - - - - - - -|                   |</span><br><span class="line">                    |      Invalid Memory (*)      | --&#x2F;--  KSTKGAP    |</span><br><span class="line">                    +------------------------------+                   |</span><br><span class="line">                    |     CPU1&#39;s Kernel Stack      | RW&#x2F;--  KSTKSIZE   |</span><br><span class="line">                    | - - - - - - - - - - - - - - -|                 PTSIZE</span><br><span class="line">                    |      Invalid Memory (*)      | --&#x2F;--  KSTKGAP    |</span><br><span class="line">                    +------------------------------+                   |</span><br><span class="line">                    :              .               :                   |</span><br><span class="line">                    :              .               :                   |</span><br><span class="line">   MMIOLIM ------&gt;  +------------------------------+ 0xefc00000      --+</span><br><span class="line">                    |       Memory-mapped I&#x2F;O      | RW&#x2F;--  PTSIZE</span><br><span class="line">ULIM, MMIOBASE --&gt;  +------------------------------+ 0xef800000</span><br></pre></td></tr></table></figure>
+<p>之前是把BSP的内核栈和CPU0’s Kernel Stack对应，现在需要把一定数量的CPU的内核栈分别和0，1，2……来对应，所以需要为这些CPUx’s Kernel Stack分配物理地址并映射。在<code>kern/trap.c/trap_init_percpu()</code>里也要做对应的修改，把对应的内核栈的位置修改了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> cpuid = cpunum();</span><br><span class="line">thiscpu-&gt;cpu_ts.ts_esp0 = KSTACKTOP - cpuid * (KSTKSIZE + KSTKGAP);</span><br><span class="line">thiscpu-&gt;cpu_ts.ts_ss0 = GD_KD;</span><br><span class="line">thiscpu-&gt;cpu_ts.ts_iomb = <span class="keyword">sizeof</span>(struct Taskstate);</span><br></pre></td></tr></table></figure>
+
+<h2 id="加锁"><a href="#加锁" class="headerlink" title="加锁"></a>加锁</h2><p>加锁后，同一时间只能有一个CPU上的一个进程进入内核，其他的要进入内核的都需要等待。否则有可能不同的进程会资源竞争，导致死锁等情况。对于在MSP下，对于BSP和每一个AP，都要在进入内核前加锁，返回用户态前解锁。加锁时如果有其他的进程已经在内核态了，就等待。具体加锁解锁的时候在Lab中都讲了，所以这里就不说了。<br>Question: It seems that using the big kernel lock guarantees that only one CPU can run the kernel code at a time. Why do we still need separate kernel stacks for each CPU? Describe a scenario in which using a shared kernel stack will go wrong, even with the protection of the big kernel lock.<br>这是因为在发生中断异常时，在<code>kern/trap.c/trap()</code>加锁前，已经由CPU和<code>kern/trapentry.S</code>在内核栈上放了当前进程的寄存器值，即保存上下文。如果不同的CPU共享一个内核栈，那么多个CPU同时发生中断异常时，在<code>kern/trap.c/trap()</code>加锁前放寄存器值时就会把栈弄乱。</p>
+<h2 id="轮转调度"><a href="#轮转调度" class="headerlink" title="轮转调度"></a>轮转调度</h2><p>用户代码通过系统调用<code>sys_yield()</code>来进入内核的<code>sched_yield()</code>函数，即调度函数。这个函数搜索管理进程的数组<code>envs</code>，找到第一个状态为<code>ENV_RUNNABLE</code>的进程，然后<code>env_run()</code>。如果没有可执行的进程，就会进入内核。<br>注意：</p>
+<ul>
+<li>每一个CPU都会进行调度，一个进程在一个CPU上运行了，此时就不会在另一个CPU上运行。即一个进程不能在两块及以上CPU上同时运行。所有的进程都是整个操作系统来管理的，不同的CPU只负责找到一个<code>ENV_RUNNABLE</code>的进程并执行就行了。</li>
+<li>这种方式是主动的（正如标题Cooperative Multitasking），必须要用户进程A调用<code>sys_yield()</code>函数来放弃当前CPU的使用权，CPU才能处理下一个进程B。之后B再调用<code>sys_yield()</code>后，又会在<code>envs</code>数组中找到进程A，从之前打断的地方继续运行。</li>
+<li>CPU上当前的进程不管处于什么原因，被<code>env_destroy()</code>后，此CPU也会调用<code>sched_yield()</code>，来寻找下一个可运行的进程。  </li>
+</ul>
+<p>Question: In your implementation of env_run() you should have called lcr3(). Before and after the call to lcr3(), your code makes references (at least it should) to the variable e, the argument to env_run. Upon loading the %cr3 register, the addressing context used by the MMU is instantly changed. But a virtual address (namely e) has meaning relative to a given address context–the address context specifies the physical address to which the virtual address maps. Why can the pointer e be dereferenced both before and after the addressing switch?<br>这是因为变量e是在内核栈中的（在内核态下当然使用的是内核栈）。而在<code>kern/env.c/env_setup_vm()</code>中，每一个进程在初始化时都会把页表中<code>UTOP</code>以上除了<code>UVPT</code>的地方都映射到和<code>kern_pgdir</code>相同的地方，所以，变量e所在的页，不管是在内核页表还是用户进程页表中都会映射到相同的物理地址，所以切换前后都能访问到。</p>
+<h2 id="进程管理的系统调用"><a href="#进程管理的系统调用" class="headerlink" title="进程管理的系统调用"></a>进程管理的系统调用</h2><p>在上面的代码中，实现多进程的方式都是BSP在内核中调度进程前创建多个进程，如</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">// Starting non-boot CPUs</span></span><br><span class="line">    boot_aps();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> defined(TEST)</span></span><br><span class="line">    <span class="comment">// Don&#x27;t touch -- used by grading script!</span></span><br><span class="line">    ENV_CREATE(TEST, ENV_TYPE_USER);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="comment">// Touch all you want.</span></span><br><span class="line">    <span class="comment">//ENV_CREATE(user_primes, ENV_TYPE_USER);</span></span><br><span class="line">    ENV_CREATE(user_yield, ENV_TYPE_USER);</span><br><span class="line">    ENV_CREATE(user_yield, ENV_TYPE_USER);</span><br><span class="line">    ENV_CREATE(user_yield, ENV_TYPE_USER);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span> <span class="comment">// TEST*</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Schedule and run the first user environment!</span></span><br><span class="line">    sched_yield();</span><br></pre></td></tr></table></figure>
+<p>用户并不能自己创建，所以在这一节中实现了几个系统调用，使用户进程也能创建用户进程。<br>Unix的fork()时把父进程的空间都复制一份给子进程，父进程的fork()函数的返回值为子进程的进程id，子进程的fork()函数的返回值为0。在这里需要先实现以下几个系统调用：</p>
+<ol>
+<li><code>sys_exofork</code>:<br>通过<code>env_alloc()</code>创建一个进程（子进程），只修改其状态为<code>ENV_NOT_RUNNABLE</code>；赋当前进程（父进程）的寄存器值给这个新进程的寄存器；子进程的<code>eax</code>设置为0（<code>eax</code>放的是系统调用的返回值，设置为0就可以实现父进程通过系统调用函数返回子进程id，子进程返回值为0）。</li>
+<li><code>sys_env_set_status</code>:<br>设置进程的状态为<code>ENV_RUNNABLE</code>或<code>ENV_NOT_RUNNABLE</code>。调用此系统调用的进程A必须是要被设置的进程B本身或是其的父进程。下面的几个系统调用都要遵守这样的规定。</li>
+<li><code>sys_page_alloc</code>:<br>分配空白的一页，将其映射到给定进程的给定虚拟地址上。</li>
+<li><code>sys_page_map</code>:<br>将<strong>源进程</strong>的<strong>源虚拟地址</strong>对应的物理页映射到<strong>目标进程</strong>的<strong>目标虚拟地址</strong>对应的那一页上。在此过程中，最多修改目标进程的页表，不会分配写实际内容的页。</li>
+<li><code>sys_page_unmap</code>:<br>将进程的给定虚拟地址取消映射。  </li>
+</ol>
+<p>为什么一次fork()会返回两个值？</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">envid_t</span></span><br><span class="line">sys_exofork(<span class="keyword">void</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// Create the new environment with env_alloc(), from kern/env.c.</span></span><br><span class="line">    <span class="comment">// It should be left as env_alloc created it, except that</span></span><br><span class="line">    <span class="comment">// status is set to ENV_NOT_RUNNABLE, and the register set is copied</span></span><br><span class="line">    <span class="comment">// from the current environment -- but tweaked so sys_exofork</span></span><br><span class="line">    <span class="comment">// will appear to return 0.</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// LAB 4: Your code here.</span></span><br><span class="line">    <span class="comment">// panic(&quot;sys_exofork not implemented&quot;);</span></span><br><span class="line"></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Env</span> *<span class="title">child</span>;</span></span><br><span class="line">    <span class="keyword">int</span> r;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((r = env_alloc(&amp;child, curenv-&gt;env_id)) &lt; <span class="number">0</span>)</span><br><span class="line">        <span class="keyword">return</span> r;</span><br><span class="line">    </span><br><span class="line">    child-&gt;env_status = ENV_NOT_RUNNABLE;</span><br><span class="line">    child-&gt;env_tf = curenv-&gt;env_tf;</span><br><span class="line">    child-&gt;env_tf.tf_regs.reg_eax = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> child-&gt;env_id;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>新建了一个进程，并设置新进程的父进程就是当前进程后，除了<code>eax</code>设置为0，其他寄存器和当前进程设置相同。父进程通过正常途径返回到用户态，此时子进程的状态还是<code>ENV_NOT_RUNNABLE</code>。父进程做一些映射后，设置子进程为<code>ENV_RUNNABLE</code>了，下一次CPU调度的时候就会运行子进程，此时子进程的寄存器和父进程系统调用前的一样，直接执行下一条指令。用户代码中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">envid &#x3D; sys_exofork();</span><br></pre></td></tr></table></figure>
+<p>此代码对应的汇编代码为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">8000e8:   b8 07 00 00 00          mov    $0x7,%eax</span><br><span class="line">8000ed:   cd 30                   int    $0x30</span><br><span class="line">8000ef:   89 c3                   mov    %eax,%ebx</span><br></pre></td></tr></table></figure>
+<p><code>$0x7</code>是<code>sys_exofork()</code>的系统调用号，保存在<code>eax</code>中。父进程是通过<code>int</code>指令正常返回，返回后把<code>eax</code>里的返回值<code>mov</code>到<code>ebx</code>。子进程执行时，<code>eip</code>为8000ef，就直接执行<code>mov</code>，所以形成了调用一次返回两次，并且两个返回值不同的现象。</p>
+<h1 id="Copy-on-Write-Fork"><a href="#Copy-on-Write-Fork" class="headerlink" title="Copy-on-Write Fork"></a>Copy-on-Write Fork</h1><p>之前的fork是把父进程所有内存页上面的数据全部复制到子进程的内存页对应的位置上，然而，在fork后经常会使用exec等函数，用别的程序替换子进程的内存内容，所以之前的复制是一种极大的浪费。所以之后使用写时复制（copy on write）：即初始化子进程时，只是把父进程的页表映射关系复制到子进程的页表，并不复制其具体内容。然后把这些共享的页标记为只读，Copy-on-Write（COW）。然后父/子进程中的任何一个修改这些只读页时，生成一个page fault。此时操作系统再为生成page fault的进程分配一个新的、可写的、含有这一页内容的页。这样做就降低了在fork后使用exec的开销。</p>
+<h2 id="User-level-page-fault-handling"><a href="#User-level-page-fault-handling" class="headerlink" title="User-level page fault handling"></a>User-level page fault handling</h2><p>之前Lab3中加载进程时是一次把所有内存页内容加载进内存。但是在实际上，加载新进程时一般只分配用户栈一页，其他页只在页表中做了映射，并不分配页并写入。在实际执行程序要用到哪一页时，发生page fault，操作系统再次做处理。对于不同类型的page fault，处理方法不同。如栈发生page fault了，就分配并映射新的一页；代码段page fault了，就到可执行文件中读取对应位置的内容写入到一页，并映射到对应位置。这在《程序员的自我修养——链接、装载与库》的第6章可执行文件的装载与进程中也讲到了。<br>所以需要让操作系统知道发生page fault时需要做什么。在这里，发生page fault时handler的操作过程是自定义的。要实现User-level page fault，整个操作流程如下：</p>
+<ol>
+<li>进程使用<code>sys_page_alloc</code>系统调用为异常栈（User Exception Stack，异常栈还是属于用户空间，但是和正常栈区分开了）分配空间，使用<code>sys_env_set_pgfault_upcall()</code>系统调用为进程设置发生page fault时要转入执行的函数，并在同时设置<code>_pgfault_handler</code>，即真正的处理程序。</li>
+<li>发生page fault时，在<code>kern/trap.c/page_fault_handler()</code>中在异常栈上建立一个<code>UTrapframe</code>结构，然后把当前进程的<code>eip</code>指向之前设置的<code>env_pgfault_upcall</code>，当前进程的<code>esp</code>指向刚刚设置的<code>UTrapframe</code>底部。这样就可以在异常栈上执行<code>env_pgfault_upcall</code>程序。<br><img src="https://s2.loli.net/2022/01/10/vdqC4ymTZ2oLlKc.png" alt="page fault.jpg"></li>
+<li>由于<code>env_pgfault_upcall</code>统一指向的是<code>lib/pfentry.S/_pgfault_upcall</code>，所以从这个汇编语言开始执行。在<code>_pgfault_upcall</code>中，调用<code>_pgfault_handler</code>，使用用户自己定义的处理程序处理，在此处理程序中，处理方法是自定义的。处理完成后，从<strong>异常栈</strong>直接返回到<strong>正常用户栈</strong>。  </li>
+</ol>
+<p>如果发生page fault的地址就在异常栈中，即处理page fault的程序运行时又递归地发生了page fault，则第2步中建立<code>UTrapframe</code>结构时顶部不是<code>UXSTACKTOP</code>，而是当前<code>esp</code>下面空一个字的位置。这样做是为了在递归page fault时，在后面第3步能够正常返回到正常用户栈。具体怎么返回的就不展开讲了，方法比较巧妙，算是一个trick。  </p>
+<h2 id="Copy-on-Write-Fork-1"><a href="#Copy-on-Write-Fork-1" class="headerlink" title="Copy-on-Write Fork"></a>Copy-on-Write Fork</h2><p>至此已经实现了Copy-on-Write Fork所需要的基础的功能。fork()的具体操作步骤如下：</p>
+<ol>
+<li>调用<code>set_pgfault_handler()</code>分配、映射异常栈和设置<code>env_pgfault_upcall</code>，并设置<code>_pgfault_handler</code>为<code>pgfault()</code>（此函数在后面讲）。</li>
+<li>使用<code>sys_exofork()</code>创建一个子进程。</li>
+<li>扫描父进程中从<code>UTEXT</code>到<code>USTACKTOP</code>之间所有的页，如果在父进程中是可写的或是COW的，把子进程中对应虚拟地址映射到同一物理地址，并标记为COW，然后在父进程中标记为COW，此时不能写，但可读，又和只读区分开来；对于父进程中只读的页，就在子进程中直接映射为只读。</li>
+<li>给子进程分配映射异常栈。</li>
+<li>给子进程设置<code>env_pgfault_upcall</code>。</li>
+<li>设置子进程的状态为<code>ENV_RUNNABLE</code>。</li>
+</ol>
+<p>这其中卡住我时间最长的是第3步，Lab和代码中让使用<code>uvpt</code>和<code>uvpd</code>查看页表的权限位。我刚开始实在是没能理解怎么用，代码中的注释也看得迷迷糊糊的，然后卡了好久。后来输出了一下，显示<code>uvpd</code>是0xef7bd000，<code>uvpt</code>是0xef400000，最后是从这下手弄懂的。  </p>
+<ul>
+<li><code>uvpd</code>0xef7bd000的二进制为1110 1111 0111 1011 1101 0000 0000 0000，根据<a target="_blank" rel="noopener" href="https://noobzang.github.io/2021/07/21/6-828%E7%AC%94%E8%AE%B0-Lab-2-Memory-Management/">内存管理部分</a>，此地址的前10位1110 1111 01（11 1011 1101），也就是3bd用于在<code>Page Direction</code>中索引。而在<code>kern/env.c/env_setup_vm()</code>中<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">e-&gt;env_pgdir[PDX(UVPT)] &#x3D; PADDR(e-&gt;env_pgdir) | PTE_P | PTE_U;</span><br></pre></td></tr></table></figure>
+其中<code>UVPT</code>为0xef400000，PDX也就是前10位也为3bd。所以用0xef7bd000寻址时第一步查找的结果又回到了<code>Page Direction</code>本身。第二步的PTX还是3bd，又回到了<code>Page Direction</code>。虚拟地址的后12位指出一个4KB的页中的具体偏移量，所以通过<code>uvpd</code>的后12位就可以直接访问此进程的4KB的<code>Page Direction</code>的每一个字节了。作为<code>Page Direction</code>共1024项，每一项32位，4个字节，由于内存寻址时是按字节为单位的，而要得到的<code>PTE</code>信息是以字为单位的，所以最后面两位恒为0。前面10位表示1024项，后面2位为0，所以共(2^10)*(2^2)=2^12(4KB)。也可以直接使用<code>uvpd[n]</code>来访问第n个字（32位的），n的取值范围为0~1023。  </li>
+<li>而<code>uvpt</code>的二进制为1110 1111 0100 0000 0000 <em>0000 0000 00</em>00，第一步回到了<code>Page Direction</code>，第二步全为0，但是可以自己加，这10位可以取0到1023，即<code>Page Direction</code>中所有的<code>Page Table</code>的地址（前提是此<code>Page Table</code>是存在的），最后可以在后面斜体的10位0上设置偏移量，查找<code>Page Table</code>中1024项的数值。  </li>
+</ul>
+<p>举个例子，就比如地址<code>addr</code>为0xeebfd000，二进制为<strong>1110 1110 10</strong> <em>11 1111 1101</em> 0000 0000 0000，寻址时，</p>
+<ol>
+<li>第一步为用粗体数字3ba在<code>Page Direction</code>中查找这一项是否存在。而在这里，就可以使用<strong>1110 1111 01</strong> <em>11 1011 1101</em> 1110 1110 1000，也即<code>uvpd[0x3ba]</code>在<code>Page Direction</code>中查看这一项是否存在（<code>uvpd[0x3ba] &amp; PTE_P</code>）以及获得权限位(<code>uvpt[0x3ba] &amp; 0xFFF</code>)。</li>
+<li>寻址时第二步还要看在3ba对应的页表中上面斜体的3fd项是否存在。这一次就可以用<strong>1110 1111 01</strong> <em>11 1011 1010</em> 1111 1111 0100来查看：若这个<code>Page Table</code>不存在，则在第二步用3ba寻址时就page fault，否则找到3ba对应的<code>Page Table</code>，再查看第3fd个字的具体内容（高20位为这一页映射到的物理地址，低12位为权限位）。也可以用<code>uvpt[addr&gt;&gt;12]</code>表示，<code>addr&gt;&gt;12</code>，就只剩下了高20位，<code>[]</code>取一个字，相当于乘4，即左移2位，最后就是<code>uvpt+(addr&gt;&gt;10)</code>，就是上面的第二步拼出来的地址。  </li>
+</ol>
+<p>最后这一段写出来的代码为</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span>(addr = UTEXT; addr &lt; USTACKTOP; addr += PGSIZE)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(uvpd[PDX(addr)] &amp; PTE_P &amp;&amp; uvpt[addr&gt;&gt;PTXSHIFT] &amp; PTE_P)</span><br><span class="line">        duppage(envid, PGNUM(addr));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>右移12位也相当于取<code>PGNUM</code>。<br>我把这段写出来后才弄懂了，他给出<code>uvpt</code>和<code>uvpd</code>，就可以在这两个地址的基础上通过改变<code>PDX</code>和<code>PGOFF</code>来定位到想要查询的<code>Page direction</code>和<code>Page Table</code>上的具体的项，最终是为了查找<code>Page direction</code>和<code>Page Table</code>中项的权限位，然后来确定哪一页在父进程中存在，哪一页不存在，对于存在的，映射到子进程中去。那为什么不直接用<code>kern/pmap.c/pgdir_walk()</code>这样的函数呢？后面试了一下才想起来，这是用户态代码，不能直接使用内核函数的，除非使用系统调用。<br>后面的操作就简单了，给父/子进程做映射、设置等直接用系统调用就可以了。   </p>
+<p>最后还要实现对COW页进行写操作导致page fault时的处理函数<code>pgfault()</code>。由于COW页A是父子进程共享的，所以不能写入，如果要写，则导致page fault，最后运行到之前定义的<code>_pgfault_handler</code>也就是<code>pgfault()</code>：</p>
+<ol>
+<li>在<code>pgfault()</code>里面给要写入的进程e（e可以是父进程，也可以是子进程）分配新的一页B，并映射到e的一个临时的安全的地址。</li>
+<li>把A的内容复制给B。</li>
+<li>把B映射到A的地址，此时就把之前A的映射关系覆盖了。</li>
+<li>把B在e中临时地址上的映射关系取消。  </li>
+</ol>
+<p>这样就定义好fork()和相应的page fault处理程序了。运行时也发现，用户栈会导致page fault，因为在fork()以后，还是会对自己的栈进行操作的，所以会page fault，然后用一个有写权限的页替代原来的。  </p>
+<h1 id="Preemptive-Multitasking-and-Inter-Process-communication-IPC"><a href="#Preemptive-Multitasking-and-Inter-Process-communication-IPC" class="headerlink" title="Preemptive Multitasking and Inter-Process communication (IPC)"></a>Preemptive Multitasking and Inter-Process communication (IPC)</h1><h2 id="抢占式多任务"><a href="#抢占式多任务" class="headerlink" title="抢占式多任务"></a>抢占式多任务</h2><p>到目前为止，任务调度还是需要依靠进程自己在程序中使用系统调用<code>sys_yield()</code>来声明放弃CPU，然后操作系统找到另一个可运行的进程并运行，如果找不到别的可运行的就继续运行当前进程。这样做的坏处很明显，如果只有一个CPU，这个CPU当前运行的进程进入了一个死循环，在这里面不调用<code>sys_yield()</code>，那么操作系统是没办法收回CPU的。所以要使用抢占式的调度。即每过一段时间，时钟发出一个中断，操作系统对此中断的处理就是强制收回当前进程的CPU，换下一个进程进行调度。在这里，时钟每过一段时间发出一个中断这部分Lab中已经写好了，只需要注册这些中断信号就可以了。同时，<code>eflags</code>有一位<code>FL_IF</code>，为1时CPU能够接受外部中断（就比如时钟信号的中断），否则则屏蔽外部中断。在此操作系统中，在用户态时是设置为1，在内核态时设置为0。所以需要在初始化进程时设置此信号。按照Lab中的操作步骤和代码中的注释，参照Lab3中的注册方法，就可以实现了。</p>
+<h2 id="进程间通信"><a href="#进程间通信" class="headerlink" title="进程间通信"></a>进程间通信</h2><p>在这里的通信机制也比较简单，通信的双方都使用系统调用，一个接收信息一个发送信息。</p>
+<ul>
+<li>接收方：通过系统调用，在内核中设置自己的接收信号位，设置自己的状态为<code>ENV_NOT_RUNNABLE</code>，然后使用<code>sched_yield()</code>调度其他进程。这样操作系统就不会再运行此进程了，直到发送方在内核中设置接收方的状态为<code>ENV_RUNNABLE</code>。</li>
+<li>发送方：做各种检查，如果能发送，则在内核中修改接收方进程的成员变量以存储接收信息，设置接收方的接收信号位，把接收方状态设置为<code>ENV_RUNNABLE</code>。有一点需要注意，因为接收方最后<code>sched_yield()</code>了，所以后面的代码是不会执行了，要设置接收方的返回值，只能通过发送方在内核中设置接收方进程的<code>eax</code>为0，接收方才能正确返回。  </li>
+</ul>
+<p>上面写的是发送一个数字的过程，但是也可以传送页。比如接收方A设置接收的页要映射到自己空间的Aaddr，然后阻塞自己。发送方B有一页要发送给A，其在B的虚拟空间中的地址为Baddr，这一页的物理页实际地址为C。要把这一页发送给A，就在B进入内核，做一系列检查后，把Baddr对应的那一页C映射到A的Aaddr地址就可以了。这样就实现了两个进程的不同地址（也可以相同）共享同一页（映射到的物理地址相同）。  </p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/11/26/elf%E6%96%87%E4%BB%B6%E7%9A%84Section%E4%B8%8ESegment/" rel="prev" title="elf文件的Section与Segment">
+                  <i class="fa fa-chevron-left"></i> elf文件的Section与Segment
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Roadshop</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+</body>
+</html>
