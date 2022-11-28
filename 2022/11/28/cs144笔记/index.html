@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+<meta name="google-site-verification" content="ZuPSfZpWtpoO0Dlfq7CH6xYR_DgNEfn52UQLsdxRb_Y" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/theme-images/apple-touch-icon-cat.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/theme-images/favicon-32x32-cat.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/theme-images/favicon-16x16-cat.png">
+  <link rel="mask-icon" href="/theme-images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="//unpkg.com/@fortawesome/fontawesome-free@5.15.1/css/all.min.css">
+  <link rel="stylesheet" href="//unpkg.com/animate.css@3.1.1/animate.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","images":"/images","scheme":"Gemini","version":"8.1.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+  </script>
+<meta name="description" content="cs144 Lab 0到Lab 7所有笔记。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cs144笔记">
+<meta property="og:url" content="http://example.com/2022/11/28/cs144%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="老约翰中医">
+<meta property="og:description" content="cs144 Lab 0到Lab 7所有笔记。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://s2.loli.net/2022/09/11/AjvUHF1mVcKl7DM.jpg">
+<meta property="article:published_time" content="2022-11-28T07:40:56.000Z">
+<meta property="article:modified_time" content="2022-11-28T08:54:21.702Z">
+<meta property="article:author" content="Roadshop">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s2.loli.net/2022/09/11/AjvUHF1mVcKl7DM.jpg">
+
+
+<link rel="canonical" href="http://example.com/2022/11/28/cs144%E7%AC%94%E8%AE%B0/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<title>cs144笔记 | 老约翰中医</title>
+  
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">老约翰中医</h1>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu">
+        <li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li>
+        <li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+        <li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+        <li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+        
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <section class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-0"><span class="nav-number">1.</span> <span class="nav-text">Lab 0</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-1"><span class="nav-number">2.</span> <span class="nav-text">Lab 1</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-2"><span class="nav-number">3.</span> <span class="nav-text">Lab 2</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-3"><span class="nav-number">4.</span> <span class="nav-text">Lab 3</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-4"><span class="nav-number">5.</span> <span class="nav-text">Lab 4</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-5"><span class="nav-number">6.</span> <span class="nav-text">Lab 5</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#TAP"><span class="nav-number">6.1.</span> <span class="nav-text">TAP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TAP%E7%9A%84%E6%9E%84%E9%80%A0%E5%92%8C%E5%90%84%E7%BA%A7%E5%BA%8F%E5%88%97%E5%8C%96-amp-%E8%A7%A3%E6%9E%90"><span class="nav-number">6.2.</span> <span class="nav-text">TAP的构造和各级序列化&amp;解析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-6"><span class="nav-number">7.</span> <span class="nav-text">Lab 6</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lab-7"><span class="nav-number">8.</span> <span class="nav-text">Lab 7</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </section>
+        <!--/noindex-->
+
+        <section class="site-overview-wrap sidebar-panel">
+          <div class="site-author site-overview-item animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Roadshop</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap site-overview-item animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">12</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author site-overview-item animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/NoobZang" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;NoobZang" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:roadshop7@outlook.com" title="E-Mail → mailto:roadshop7@outlook.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+        </section>
+      </div>
+    </div>
+  </aside>
+  <div class="sidebar-dimmer"></div>
+
+
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/28/cs144%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Roadshop">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="老约翰中医">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          cs144笔记
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-11-28 15:40:56" itemprop="dateCreated datePublished" datetime="2022-11-28T15:40:56+08:00">2022-11-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/cs144/" itemprop="url" rel="index"><span itemprop="name">cs144</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>cs144 Lab 0到Lab 7所有笔记。</p>
+<a id="more"></a>
+<h1 id="Lab-0"><a href="#Lab-0" class="headerlink" title="Lab 0"></a>Lab 0</h1><p>构造一个字节流。我是用一个数组实现的，需要用到模运算。</p>
+<h1 id="Lab-1"><a href="#Lab-1" class="headerlink" title="Lab 1"></a>Lab 1</h1><p>接收方把接收到的子串，重新组装（reassemble）为原序列，也就是按顺序排列的序列。主要还是算法的问题，不涉及网络。<br><img src="https://s2.loli.net/2022/09/11/AjvUHF1mVcKl7DM.jpg" alt="reassembled ByteStream.jpg"><br>Lab1的主要工作就是处理接收到的子串。绿色部分是<code>reassembler</code>已经处理好按顺序的序列，但还没有被上层读取，所以要保存起来，占用窗口空间。如果新来的子串中包括first unreassembled，就往后添加为绿色部分。并且继续往后看，如果有红色部分和刚刚标记为绿色的部分是相接的，就继续往后走。如果新来的子串在first unreassembled以后，就标记为红色的。如果大于first unacceptable，就不用添加。其实就是接收窗口。</p>
+<h1 id="Lab-2"><a href="#Lab-2" class="headerlink" title="Lab 2"></a>Lab 2</h1><p>实现<code>TCPReceiver</code>。需要处理序号格式的转换。接收数据时，除了一些特殊情况，往<code>reassembler</code>里面写数据就行了。</p>
+<h1 id="Lab-3"><a href="#Lab-3" class="headerlink" title="Lab 3"></a>Lab 3</h1><p>实现<code>TCPSender</code>。需要注意的有以下几点：</p>
+<ol>
+<li>窗口管理。需要在发送方维护一个表示接收方可接收数据窗口大小的变量<code>_acceptable_win</code>，初始化为1。但是这个和接收方发过来的<code>window size</code>不一样，具体为：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">|&lt;--------------------window_size--------------------&gt;|</span><br><span class="line">|XXXXXXXXX|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|</span><br><span class="line"> 1         2</span><br><span class="line">1: receive_absolute_ackno，接收方发送过来的ACK</span><br><span class="line">2: _next_seqno，发送方下一个未发送的数据</span><br><span class="line">window_size，接收方发送过来的窗口大小</span><br><span class="line">window_size - (_next_seqno - receive_absolute_ackno)是发送方可发送的窗口大小_acceptable_win</span><br></pre></td></tr></table></figure>
+这样做是因为可能接收方发送数据时，发送方发到的介于1和2之间的数据接收方还没收到。每次发送新数据时，需要将<code>_acceptable_win</code>减去对应的数据大小。重传数据时不用，因为那是介于1到2之间的部分。</li>
+<li>接收与发送。需要维护一个表示发送方已发送但未收到<code>ACK</code>的包的集合<code>_segments_outstanding</code>，也就是上面1到2之间的数据。每次接收到包时，查看接收方发过来的<code>ACK</code>和<code>window_size</code>，更新<code>_segments_outstanding</code>和<code>_acceptable_win</code>。然后调用<code>fill_window()</code>，也就是尽可能多选数据，然后发送。同样也需要更新<code>_acceptable_win</code>和<code>_segments_outstanding</code>。<code>fill_window()</code>也可以由上层应用调用。</li>
+<li>超时重传。以上的接收与发送是正常情况下的。如果发送方发送了一个包后，经过了指定时间<code>RTO</code>还没收到一个有效的<code>ACK</code>，发送方就需要重新传送<code>_segments_outstanding</code>中最早的一个包。时间信息由<code>tick()</code>提供。还需要自己实现一个计时器。此计时器记录的是最早发送的未收到<code>ACK</code>的包（不管是新数据还是重传数据）的已发送时间。发送新数据时，如果计时器已经在计时，则不管，接着计时；如果未开始计时，则打开，重置计时器为0。重传包时，都要重置计时器为0（此时计时器必然打开，因为是否重传需要依靠计时器是否打开和经过的时间来判断）。如果正常接收到了有效<code>ACK</code>，重置为0。如果调用<code>tick()</code>时发现计时器大于<code>RTO</code>了，说明在这<code>RTO</code>时间段内没有接收到<code>ACK</code>，触发重传。此时也要把计时器重置为0，重复以上步骤。</li>
+<li><code>RTO</code>加倍。有时候由于网络拥塞，包往返时间是要增加的。所以每次超时重传时，都要把<code>RTO</code>加倍，直到某个界限。恢复为初始值的条件是发送一个包后在<code>RTO</code>时间内接收到一个有效<code>ACK</code>，这说明网络恢复正常了。但有一种情况超时重传时不用加倍：接收方发送过来的<code>window_size</code>为0。这表明接收方的上层应用由于某种原因（比如繁忙）还没有取出接收方接收到的数据，并不是由于网络拥塞导致的超时。所以此时不用加倍，但是要设置<code>_acceptable_win</code>为1，虽然可能接收方还是无法接收，但是发送方能够通过接收方返回来的数据掌握窗口大小变化的情况。  </li>
+</ol>
+<p>几个要注意的点：</p>
+<ul>
+<li>在这里实现的时候，<code>SYN</code>是需要单独发送的，也就是<code>SYN</code>包里面没有数据，但是<code>FIN</code>是可以附在有数据的包上的。</li>
+<li><code>SYN</code>和<code>FIN</code>都占用一个<code>seqno</code>，但都不占用包的数据载荷。</li>
+<li>计时器是通过两个变量一起实现的。一个指示计时器是否打开，一个表示计时器经过的时间。<code>tick()</code>函数由上层调用，参数为距离上次调用<code>tick()</code>经过的时间，也就是提供了时间信息。</li>
+</ul>
+<h1 id="Lab-4"><a href="#Lab-4" class="headerlink" title="Lab 4"></a>Lab 4</h1><p>一个TCP通信是点对点的，双方各有一个接收和发送通道。而这一次的Lab就是把之前的<code>TCPReceiver</code>和<code>TCPSender</code>融合起来。最主要的函数是<code>segment_received()</code>，此函数把接收到的网络包分别给<code>TCPReceiver</code>和<code>TCPSender</code>：<code>TCPReceiver</code>接收对面的数据，按顺序排好，给上层的是字节流；如果有包中有<code>ACK</code>，把<code>ACK</code>和<code>WIN</code>交给<code>TCPSender</code>，调整发送窗口，并尽可能地发送数据。如果包中没有<code>ACK</code>，则说明这是对面的第一个<code>SYN</code>包，这里又分为两种情况，就不细讲了。最后真正发送时，因为是从<code>TCPSender</code>那里获取要发送的包，需要加上<code>TCPReceiver</code>给出的<code>ACK</code>（如果有的话）和<code>WIN</code>再发送。<br>下面主要讲一下建立连接和断开连接两个阶段，倒不是讲怎么实现的，而是为什么这么实现。实现的时候也还好，有些就是直接把之前写的堆在一起就能实现功能了，很奇妙，比如建立连接阶段。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">    建立连接                                       断开连接</span><br><span class="line">A                 B                         A                 B</span><br><span class="line"> --------   SYN                               -------- FIN+ACK</span><br><span class="line">         --------&gt;                                    --------&gt;</span><br><span class="line">                                        </span><br><span class="line">                                        </span><br><span class="line">                                        </span><br><span class="line">  SYN+ACK --------                               ACK  --------</span><br><span class="line"> &lt;--------                                   &lt;--------</span><br><span class="line">                                            </span><br><span class="line">                                            </span><br><span class="line">                                            </span><br><span class="line"> --------   ACK                               FIN+ACK --------</span><br><span class="line">         --------&gt;                           &lt;--------</span><br><span class="line">                                        </span><br><span class="line">                                        </span><br><span class="line">                                                     </span><br><span class="line">                                             --------   ACK</span><br><span class="line">                                                     --------&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>要确保每个包都被送达，如果是<code>SYN</code>，<code>FIN</code>或者是有数据的包，重传机制可以确保包被送达。所以需要特别关注的是最后单独的<code>ACK</code>。用Lab里的话就是：TCP doesn’t deliver acks reliably (it doesn’t ack acks)</strong>  </p>
+<ol>
+<li>建立连接：前两个<code>SYN</code>和<code>SYN+ACK</code>重传机制可以保证被送达，那么就只剩下了A发送的最后一个<code>ACK</code>，此<code>ACK</code>是对B的<code>SYN</code>的答复。一种思路是让B再给A答复对于此<code>ACK</code>的<code>ACK</code>，但此时又要保证B的最后一个<code>ACK</code>被送达。这样就会循环下去，也就是造成了两军问题。所以，TCP在这给出的思路是不管了，认为被送达，和断开连接时给出的等待一段时间不同。我认为TCP这样设计是因为断开连接时如果直接断开，不管了，认为被送达，万一没送达对面重传了就出错了，但刚刚建立连接时一般不会马上断开，如果B的<code>SYN+ACK</code>重传了，A还可以答复。而且如果未送达，A在B重传前发送了字节流，如果这个包能送达，则里面的<code>ACK</code>也能够确认B的<code>SYN</code>。</li>
+<li>断开连接：B会对A的<code>FIN</code>答复<code>ACK</code>以及<code>FIN+ACK</code>，A最后的<code>ACK</code>确保了B的答复A是收到的。而A对于B的<code>FIN</code>的答复，并不能确保B收到，因为B收到答复后，确认了自己的<code>FIN</code>和对A的<code>FIN</code>的<code>ACK</code>被收到就直接关闭了。而A要等待一段时间，防止A对<code>FIN</code>的答复B没收到，进而重传<code>FIN</code>时A已关闭。如果过一段时间后B还没有重传，则A认为自己的<code>ACK</code>发送成功，就关闭了。  </li>
+</ol>
+<p>别的几点：</p>
+<ul>
+<li>本次Lab涉及到<code>RST</code>，有两种情况会发出<code>RST</code>，发送和接收到<code>RST</code>时要断开连接。 </li>
+<li>我的实现里面最后B发送的<code>ACK</code>和<code>FIN+ACK</code>应该总是分开的，不会出现压缩成一个<code>FIN+ACK</code>的情况。但压缩成一个<code>FIN+ACK</code>从原理上来讲也是可以的，能够保证正常通信，此时各个包的情况就和建立连接阶段类似。但在实际情况中一般B对应服务端，可能在A要断开时还有数据要发送，所以分开发的情况更常见一点。</li>
+<li>最后修改了<code>webget.cc</code>，修改前是正常的，修改后就不能正常获取到网页了，我也不知道是什么原因，有点遗憾。☹</li>
+</ul>
+<h1 id="Lab-5"><a href="#Lab-5" class="headerlink" title="Lab 5"></a>Lab 5</h1><p>本次实验还是比较简单的，主要是实现ARP协议。当在ip头填好ip后，就可以根据路由表决定下一跳了（在Lab 6中实现）。有了下一跳地址，就可以在以太网层发帧（frame）了。以太网帧的头部分别为：目标以太网地址、源以太网地址、帧类型。常见的帧类型为ARP、IPv4这些，意思就是这个以太网帧的内容是ARP、IPv4等。此时若不知道目标以太网地址，就需要ARP协议。A需要发的数据的下一跳是B的ip，此时已知B的ip，需要知道B的以太网地址，就广播（目标以太网地址为FF:FF:FF:FF:FF:FF）一个ARP报文。此时不管是B还是另一个C收到此ARP消息后，都把A的ip和MAC地址对缓存一定的时间，然后C对此报文的操作就结束了。B回复给A它的MAC地址。A收到后会记录ip和MAC映射，然后把之前的数据发送出去。需要注意的是A发送ARP广播之前需要记录要发送的数据以及下一跳（B的ip地址），以方便最后和B返回的消息对比。我一开始直接用数据里ip头的ip地址和B返回的消息对比，这是不对的，因为B的ip是下一跳，而ip头里面的是最终地址，不一样的。  </p>
+<h2 id="TAP"><a href="#TAP" class="headerlink" title="TAP"></a>TAP</h2><p>但这次Lab的最大收获不是这些。因为这次Lab又要修改<code>webget.cc</code>，以实现TAP层面上的调用。这里先说一下TAP和TUN，这两个都是虚拟网络设备。在真实物理设备中，要用网卡发送数据时只需要提供要发送的数据，然后调用socket接口，系统会完成tcp到ip到以太网帧的包装，然后通过网卡发送。如果人为地提供ip层的数据，然后往TUN设备里面写，系统会根据ip决定下一跳，有时会发出ARP广播，然后构造以太网帧，最后通过物理网卡发送。如果人为地提供以太网帧（也就是说已经知道下一跳的ip地址，可能会发送ARP查询，此Lab就是在做这个事情），然后往TAP里面写，就能通过虚拟网卡发送出去了。但我这次改了以后还是不行，我看了下测试代码，以下代码构造了TAP：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">tap.sh</span></span><br><span class="line">start_tap () &#123;</span><br><span class="line">    #测试时传进来的参数$1为10，设备名也就是tap10</span><br><span class="line">    local TAPNUM=&quot;$1&quot; TAPDEV=&quot;tap$1&quot; LLADDR=&quot;02:B0:1D:FA:CE:&quot;`printf &quot;%02x&quot; $1`</span><br><span class="line">    #创建tap设备</span><br><span class="line">    ip tuntap add mode tap user &quot;$&#123;SUDO_USER&#125;&quot; name &quot;$&#123;TAPDEV&#125;&quot;</span><br><span class="line">    #给tap设备添加硬件地址</span><br><span class="line">    ip link set &quot;$&#123;TAPDEV&#125;&quot; address &quot;$&#123;LLADDR&#125;&quot;</span><br><span class="line"></span><br><span class="line">    #给tap设备添加ip地址，TUN_IP_PREFIX=169.254，也就是tap10的ip地址为169.254.10.1</span><br><span class="line">    ip addr add &quot;$&#123;TUN_IP_PREFIX&#125;.$&#123;TAPNUM&#125;.1/24&quot; dev &quot;$&#123;TAPDEV&#125;&quot;</span><br><span class="line">    #打开tap10</span><br><span class="line">    ip link set dev &quot;$&#123;TAPDEV&#125;&quot; up</span><br><span class="line">    #设置路由，169.254.10.0/24都路由到tap10</span><br><span class="line">    ip route change &quot;$&#123;TUN_IP_PREFIX&#125;.$&#123;TAPNUM&#125;.0/24&quot; dev &quot;$&#123;TAPDEV&#125;&quot; rto_min 10ms</span><br><span class="line"></span><br><span class="line">    # Apply NAT (masquerading) only to traffic from CS144&#x27;s network devices</span><br><span class="line">    #给本实验的数据在路由前（PREROUTING）打上标记</span><br><span class="line">    iptables -t nat -A PREROUTING -s $&#123;TUN_IP_PREFIX&#125;.$&#123;TAPNUM&#125;.0/24 -j CONNMARK --set-mark $&#123;TAPNUM&#125;</span><br><span class="line">    #把有标记的数据在路由后（POSTROUTING）做MASQUERADE，也就是动态的SNAT（Source Network Address Translation）</span><br><span class="line">    #也就是把源ip地址改为网卡的ip，以做NAT转换</span><br><span class="line">    iptables -t nat -A POSTROUTING -j MASQUERADE -m connmark --mark $&#123;TAPNUM&#125;</span><br><span class="line">    #打开ip_forward，作用是让数据包能够在不同的网卡之间转发</span><br><span class="line">    echo 1 &gt; /proc/sys/net/ipv4/ip_forward</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我改好后抓包，发现是先用系统调用产生一个TAP设备。然后模拟一个本地的设备，ip为169.254.10.9，发送数据给下一跳tap10（此时没有经过路由，因为已经构造到了以太网层，而且每一次的下一跳地址都是tap10，是在代码里写死了的，都不经过路由）：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//! \param[in] seg the TCPSegment to send</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">TCPOverIPv4OverEthernetAdapter::write</span><span class="params">(TCPSegment &amp;seg)</span> </span>&#123;</span><br><span class="line">    _interface.send_datagram(wrap_tcp_in_ip(seg), _next_hop);</span><br><span class="line">    send_pending();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>也就是169.254.10.1（以太网层面上，ip头里面还是真正的最后目的ip）。因为刚开始本地设备不知道tap10的MAC地址，所以会发出ARP查询，tap10也做了响应。然后本地设备给tap10发送了数据包（此时也没有查路由表），也就是TCP连接的第一个<code>SYN</code>，tap10收到了，之后就没有响动了。然后本地设备由于没有接收到响应，继续重传。然后就没有了。所以我猜测是因为tap10收到数据包后不知道下一跳，所以不往外发。为了验证这一猜想，我用<code>route</code>查看路由表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Kernel IP routing table</span><br><span class="line">Destination     Gateway         Genmask         Flags Metric Ref    Use Iface</span><br><span class="line">default         DESKTOP-XXXXXXX 0.0.0.0         UG    0      0        0 eth0</span><br><span class="line">169.254.10.0    0.0.0.0         255.255.255.0   U     0      0        0 tap10</span><br><span class="line">172.29.96.0     0.0.0.0         255.255.240.0   U     0      0        0 eth0</span><br></pre></td></tr></table></figure>
+<p>可以看出，发往169.254.10.0/24的数据包转交给tap10，但这是发往169.254.10.0/24的情况。现在的情况是没有经过路由，直接发送给tap10后确实没有设置下一跳了。所以，可以再添加一个设备（可以是物理设备），此设备有两张网卡，一张可以正常上网，另一张直接和169.254.10.1连接，然后设置测试ip或者默认ip的Gateway为此能上网的网卡的网关，Iface（Iface: Interface to which packets for this route will be sent，也就是此路由的数据包将发送到的接口）为能上网的网卡，169.254.10.1/24路由到tap10。这样应该就可以了（其实添加一张网卡，然后设置两个ip应该也可以，意思都差不多），就像这里的默认路由一样，通过eth0发送到我的主机（我是用WSL2做实验的）。但这样很麻烦，所以我想到了<code>echo 1 &gt; /proc/sys/net/ipv4/ip_forward</code>，也就是让数据包在网卡之间转发。在<a target="_blank" rel="noopener" href="https://serverfault.com/questions/431593/iptables-forwarding-between-two-interface">这里</a>和<a target="_blank" rel="noopener" href="https://linux.cn/article-5595-1.html">这里</a>找到了方法。在项目根目录下的<code>tap.sh/start_tap()</code>后面添加：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">iptables -A FORWARD -i tap10 -o eth0 -j ACCEPT</span><br><span class="line">iptables -A FORWARD -i eth0 -o tap10 -m state --state ESTABLISHED,RELATED -j ACCEPT</span><br><span class="line">iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE</span><br></pre></td></tr></table></figure>
+<p>意思就是让tap10接收到的数据包用eth0转发出去。但是我直接写在<code>tap.sh</code>里面不起作用，所以直接在命令行里面运行就行了。之后用<code>sudo iptables -L -v -n</code>查看：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)</span><br><span class="line"> pkts bytes target     prot opt in     out     source               destination         </span><br><span class="line">    0     0 ACCEPT     all  --  tap10  eth0    0.0.0.0&#x2F;0            0.0.0.0&#x2F;0           </span><br><span class="line">    0     0 ACCEPT     all  --  eth0   tap10   0.0.0.0&#x2F;0            0.0.0.0&#x2F;0            state RELATED,ESTABLISHED</span><br></pre></td></tr></table></figure>
+<p>用<code>sudo iptables -t nat -L -v -n</code>查看nat表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Chain POSTROUTING (policy ACCEPT 0 packets, 0 bytes)</span><br><span class="line"> pkts bytes target     prot opt in     out     source               destination         </span><br><span class="line">    4   276 MASQUERADE  all  --  *      eth0    0.0.0.0&#x2F;0            0.0.0.0&#x2F;0</span><br></pre></td></tr></table></figure>
+<p>添加上去了，然后再运行<code>make check_webget</code>，就终于正常了！！！<br>用<code>sudo tcpdump -i any -w /tmp/packets.tap</code>抓包，发现确实，每次都是本地设备先发送给tap10，然后eth0再转发，接收的时候一样，eth0先接收一次，然后tap10再发送给本地设备。就是经常会重传，应该是重传时间设置得太短了。<br>同样的道理，Lab4运行前两条命令，最后那一句已经写过了。把tap10改为tun144，因为发出请求的是169.254.144.9，属于tun144，然后Lab4的<code>webget.cc</code>也通过了。我抓包tun144，发现有这么一句tcpdump: listening on tun144, link-type RAW (Raw IP)。抓到的包不管是发送还是接收，和169.254.144.9直接相关的都是没有以太网层的数据。但抓包eth0，一切正常，也就是用WSL2的网卡发给主机和WSL2连接的网卡时有以太网帧。所以，可以得出结论：TUN层面的数据包转发，第一次原本的数据只包装到ip层，然后加上以太网层，转发的网卡拿到后，再发送出去。<br>我看网上说的数据包转发：所谓转发即当主机拥有多于一块的网卡时，其中一块收到数据包，根据数据包的目的ip地址将数据包发往本机另一块网卡，该网卡根据路由表继续发送数据包。这通常是路由器所要实现的功能。确实是这样子的，不经过路由直接发送给tap10，tap10接收到数据后，要用eth0转发出去，eth0查路由表的时候，测试的ip符合默认路由，由eth0发送。而外界的数据包发送到eth0做了NAT转换后（应该是要做的），目的地址变成了169.254.10.9，查路由表，符合169.254.10.0/24，用tap10发送出去。</p>
+<h2 id="TAP的构造和各级序列化-amp-解析"><a href="#TAP的构造和各级序列化-amp-解析" class="headerlink" title="TAP的构造和各级序列化&amp;解析"></a>TAP的构造和各级序列化&amp;解析</h2><p>在<code>libsponge/tcp_helpers/tcp_sponge_socket.cc</code>中构造<code>FullStackSocket()</code>的时候会传递<code>TapFD(&quot;tap10&quot;)</code>，这个参数最终会在<code>libsponge/util/tun.cc</code>中使用系统调用构造一个TAP设备。此TAP设备读写的操作在<code>libsponge/tcp_helpers/tuntap_adapter.cc</code>中。读数据时先把数据解析成以太网帧，然后解析以太网帧的数据部分（除了头部的部分）为ip包，然后解析ip包的数据部分为tcp包，最终返回tcp包。写的时候也是，接收到的是tcp包，序列化为ip包数据部分，加上ip头，然后用网卡发送的时候再序列化整个ip包为以太网帧的数据部分，加上以太网头，最终发送时序列化整个以太网帧。<br>我也看了看各级是怎么进行序列化和解析的。先从最上面开始，<code>TCPSegment</code>有<code>TCPHeader</code>和数据部分（真正要发送的数据）。序列化<code>TCPSegment</code>时，<code>TCPHeader</code>单独序列化（方法其实很简单：把头部要发送的不同长度的数据按顺序添加成一个字符串），然后加上数据部分，形成一个大的字符串形式的数据（实际实现中使用的是自定义的<code>BufferList</code>）。<code>IPv4Datagram</code>同理，<code>IPv4Header</code>单独序列化，然后添加<code>TCPSegment</code>的序列化结果（<code>IPv4Datagram._payload</code>）。<code>EthernetFrame</code>同理，<code>EthernetHeader</code>单独序列化，然后添加<code>IPv4Datagram（InternetDatagram）</code>的序列化结果（<code>IPv4Datagram._payload</code>）。接收到的数据（<code>_tap.read()</code>）是字符串，<code>EthernetFrame</code>按顺序把<code>EthernetHeader</code>中不同长度的数据读出来后，这部分字符串就丢弃了。剩下的就是<code>InternetDatagram</code>整个部分。读出<code>IPv4Header</code>后，剩下的是<code>TCPSegment</code>。读出<code>TCPHeader</code>后，剩下的是对面发送来的数据了。</p>
+<h1 id="Lab-6"><a href="#Lab-6" class="headerlink" title="Lab 6"></a>Lab 6</h1><p>这次是要实现一个路由器的功能。路由器可以有好多网卡，每当一个网卡收到数据包而不是ARP之类的包时，就需要转发此数据包。转发是根据路由表来转发的。路由表有四个关键参数：网络前缀、子网掩码、下一跳和网卡。找到与ip包中目的地址最长匹配的网络，就用对应网卡发送到下一跳。不考虑NAT转换，假设本设备的一个网卡是A，下一跳ip不能够到达目的地址，则下一跳是路由器，对应的网卡是B，则匹配完成后是使用网卡A发送数据包到网卡B。如果下一跳ip直接到达目的地址了，也就是A和目的地址的一个网卡是直接相连的，则匹配完成后会发现下一跳为空（是这么设置，插入的）。此时需要做的是把ip包中目的地址作为下一跳，通过A发送出去（也只能这么做，路由表又不记录要发给这个网络里面的哪一个设备，只能自己填写）。注意，路由表中记录的和网卡发送数据时接收的下一跳地址是下一跳的ip地址，如果arp表中有对应的MAC地址，则直接构造以太网帧发送，否则使用arp协议找到MAC地址然后再发送。<br>虽然此次Lab没有用到之前TCP的代码，但是用到了Lab 5的网卡的代码的。也就是说，路由器是在以太网层之上的，接收和发送都要用到网卡，在接收和发送之前查路由表，确定下一跳地址。  </p>
+<h1 id="Lab-7"><a href="#Lab-7" class="headerlink" title="Lab 7"></a>Lab 7</h1><p>这次不需要写代码，合并到Lab 7的分支后，直接测试，我用我的WSL2和Azure相互测试，是可以的。然后测试1M文件的发送接收，出问题了，时间很长。然后我用小一点的文件比如100K，是可以的，应该是底层的算法速度太慢，但我不打算改了，整体方向对了就可以了。<br>然后看了下Lab 7实验提供合在一起的代码，还是比较简单的。构造了服务端和客户端，每个都配一个路由器，有两张网卡，一边连的是服务端/客户端，一边连的是因特网。发往因特网时，用系统调用UDP发送整个以太网帧到实验提供的网站，在他们那做一个中转，然后发给对面。<code>lab7.cc</code>里面的规则是对于服务端/客户端和路由器之间的规则，有些就是路由。比如路由器因特网端的网卡接收到数据以后（其实是UDP接收到以后发送因特网端网卡的），从因特网端的网卡拿出数据后做路由，然后用本地连接的网卡发送给服务端/客户端，反之亦然。这和上个Lab中讲到的是一样的。服务端/客户端代码中TCP的规则还是在<code>libsponge/tcp_helpers/tcp_sponge_socket.cc</code>中。  </p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
+<li>我写前几个Lab的记录的时候，感觉都很短，所以打算放一起写了。但是到后面越写越长。里面有些词用得不规范，比如包、数据包、以太网层，但也不想改了，知道意思就行了。  </li>
+<li>实验整体设计还是可以的，但有些地方，就比如Lab 4，实验说明里面写得也不细致，好多corner case都是看测试代码才知道的，属于面对测试用例编程。</li>
+<li>我不知道TUN和TAP那里Lab本来是怎么设计的，是打算怎么发出数据。而且我在网上搜，别人好像没有这个问题。反正把我折腾了好久，才能够正常运行的。</li>
+<li>断断续续搞得有半年，但中间好多时候都是有事啊这那的没弄，实际集中精力做的时间并不是很多。确实学到了很多。</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/03/23/6-828%E7%AC%94%E8%AE%B0-Lab-5-File-system-Spawn-and-Shell/" rel="prev" title="6.828笔记 Lab 5: File system, Spawn and Shell">
+                  <i class="fa fa-chevron-left"></i> 6.828笔记 Lab 5: File system, Spawn and Shell
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      const activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      const commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Roadshop</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <script src="//unpkg.com/animejs@3.2.1/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+</body>
+</html>
